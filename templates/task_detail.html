@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Задача
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h3 scope="row">{{ task.id }}</h3>
+<h3>{{ task.user }}</h3>
+                <h3>{{ task.direction }}</h3>
+                <h3>{{ task.type }}</h3>
+                <h3>
+                    <div class="task-discription">{{ task.description }}</div>
+
+                </h3>
+                <h3>{{ task.to_user }}</h3>
+                <h3>{{ task.urgency }}</h3>
+                <h3>{{ task.date_start.date() }}</h3>
+                <h3>{{ task.date_finish.date() }}</h3>
+                <h3>{{ task.status }}</h3>
+
+<a href="/index/{{ task.id }}" class="btn btn-primary">Изменить</a>
+                    <a href="/index/{{ task.id }}" class="btn btn-primary">Удалить</a>
+
+</div>
+
+{% endblock %}

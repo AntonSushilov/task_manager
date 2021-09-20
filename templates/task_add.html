@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Добавить задание
+{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <h1>Форма добавления задания</h1>
+    <div >
+        <form class="task-form" action="/taskadd" method="post">
+            <input type="text" id="user" name="user" placeholder="Пользователь">
+            <input type="text" id="direction" name="direction" placeholder="Направление">
+            <input type="text" id="type" name="type" placeholder="Тип">
+            <textarea name="description" id="description" cols="30" rows="10" placeholder="Описание"></textarea>
+            <input type="text" id="to_user" name="to_user" placeholder="Исполнитель">
+            <input type="text" id="urgency" name="urgency" placeholder="Срочность">
+            <input type="date" id="date_finish" name="date_finish" placeholder="Дата завершения">
+            <input type="submit" class="btn btn-success" value="Отправить">
+
+        </form>
+    </div>
+</div>
+{% endblock %}

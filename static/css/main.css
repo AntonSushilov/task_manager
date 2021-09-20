@@ -1,0 +1,46 @@
+/* Авторизация */
+.authorization-form{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
+    margin-top: 10%;
+    margin-left: auto;
+    margin-right: auto;
+    width: 250px;
+}
+.button-auth{
+    margin-top: 15px;
+}
+.form-floating{
+    margin-bottom: 10px;
+}
+
+
+#
+.header-logo{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.tasks-discription{
+    max-height: 150px;
+    max-width: 460px;
+    overflow-y: scroll;
+    word-wrap: break-word;
+}
+
+/**/
+.task-form{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.btn{
+    margin-bottom: 5px;
+    padding: 3px 5px 3px 5px;
+}
