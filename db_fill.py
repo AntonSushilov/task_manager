@@ -1,10 +1,26 @@
-from app import db, Task, User, Status, Type, Urgency
+from app import db, Task, User, Status, Type, Urgency, Direction, Role
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db.create_all()
-u1 = User(login='admin', fio='Иванов И.И.', password='password')
-u2 = User(login='user', fio='Петров П.П.', password='password')
+hash_pwd = generate_password_hash('admin')
+hash_pwd2 = generate_password_hash('user')
+u1 = User(login='admin', fio='Иванов И.И.', password=hash_pwd, role_id='2')
+u2 = User(login='user', fio='Петров П.П.', password=hash_pwd2)
 db.session.add(u1)
 db.session.add(u2)
+
+r1 = Role(name='User')
+r2 = Role(name='Admin')
+db.session.add(r1)
+db.session.add(r2)
+
+
+d1 = Direction(name='ОАОП')
+d2 = Direction(name='Комплаенс')
+d3 = Direction(name='ВХД')
+db.session.add(d1)
+db.session.add(d2)
+db.session.add(d3)
 
 st1 = Status(name='Ожидание')
 st2 = Status(name='В работе')
@@ -27,8 +43,8 @@ db.session.add(ur1)
 db.session.add(ur2)
 db.session.add(ur3)
 
-task1 = Task(user_id='1', direction='ОАОП', type_id='1', description='Описание бла бла', to_user_id='2',
-             urgency_id='1', status_id='1')
-db.session.add(task1)
+# task1 = Task(user_id='1', direction='1', type_id='1', description='Описание бла бла', to_user_id='2',
+#              urgency_id='1', status_id='1')
+# db.session.add(task1)
 
 db.session.commit()

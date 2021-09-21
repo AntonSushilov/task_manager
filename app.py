@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from flask import Flask, render_template, request, redirect, flash
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from flask import Flask, render_template, request, redirect, flash, url_for
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -21,11 +21,21 @@ class User(db.Model, UserMixin):
     login = db.Column(db.String(20), unique=True, nullable=False)
     fio = db.Column(db.String(20), nullable=False)
     password = db.Column(db.String(1255), nullable=False)
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False, default='1')
+    role = db.relationship('Role', foreign_keys=[role_id])
 
     def __repr__(self):
         return '<User %r>' % self.login
+
+
+class Role(db.Model):
+    __tablename__ = 'role'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), nullable=False)
+
+    def __repr__(self):
+        return '<Role %r>' % self.name
 
 
 @login_manager.user_loader
@@ -41,7 +51,8 @@ class Task(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', foreign_keys=[user_id])
 
-    direction = db.Column(db.String(20), nullable=False)
+    direction_id = db.Column(db.Integer, db.ForeignKey('direction.id'), nullable=False)
+    direction = db.relationship('Direction', foreign_keys=[direction_id])
 
     type_id = db.Column(db.Integer, db.ForeignKey('type.id'), nullable=False)
     type = db.relationship('Type', foreign_keys=[type_id])
@@ -54,14 +65,23 @@ class Task(db.Model):
     urgency_id = db.Column(db.Integer, db.ForeignKey('urgency.id'), nullable=False)
     urgency = db.relationship('Urgency', foreign_keys=[urgency_id])
 
-    date_start = db.Column(db.DateTime, default=datetime.utcnow)
-    date_finish = db.Column(db.DateTime, default=datetime.utcnow)
+    date_start = db.Column(db.DateTime(), default=datetime.utcnow())
+    date_finish = db.Column(db.DateTime(), default=datetime.utcnow)
 
-    status_id = db.Column(db.Integer, db.ForeignKey('status.id'), nullable=False)
+    status_id = db.Column(db.Integer, db.ForeignKey('status.id'), nullable=False, default='1')
     status = db.relationship('Status', foreign_keys=[status_id])
 
     def __repr__(self):
         return '<Task %r>' % self.id
+
+
+class Direction(db.Model):
+    __tablename__ = 'direction'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), nullable=False)
+
+    def __repr__(self):
+        return '<Status %r>' % self.name
 
 
 class Status(db.Model):
@@ -103,7 +123,8 @@ def login_page():
 
         if user_login and check_password_hash(user_login.password, password):
             login_user(user_login)
-            return render_template("tasks.html")
+            tasks = Task.query.order_by(Task.date_start.desc()).all()
+            return render_template("tasks.html", tasks=tasks)
         else:
             flash('Неправильный логин или пароль')
     else:
@@ -151,6 +172,13 @@ def register():
 @app.route('/tasks')
 def index():
     tasks = Task.query.order_by(Task.date_start.desc()).all()
+    #tasks = Task.query(Task.id, User.fio, Task.direction, Type.name,
+    #                    Task.description, User.fio, Urgency.name,
+     #                   Task.date_start, Task.date_finish,
+      #                  Status.name).filter(Task.user_id==User.id, Task.type_id==Type.id,
+       #                                     Task.to_user_id==User.id, Task.urgency_id==Urgency.id,
+        #                                    Task.status_id==Status.id).order_by(Task.date_start.desc())
+
     return render_template("tasks.html", tasks=tasks)
 
 
@@ -165,16 +193,16 @@ def task_detail(id):
 @login_required
 def addtask():
     if request.method == "POST":
-        user = request.form['user']
+        user = current_user.id
         direction = request.form['direction']
         type = request.form['type']
         description = request.form['description']
         to_user = request.form['to_user']
         urgency = request.form['urgency']
-        #date_finish = request.form['date_finish']
-
-        task = Task(user=user, direction=direction, type=type, description=description, to_user=to_user,
-                    urgency=urgency)
+        date_finish = datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')
+        print(user, direction, type, description, to_user, urgency, date_finish)
+        task = Task(user_id=user, direction_id=direction, type_id=type, description=description, to_user_id=to_user,
+                    urgency_id=urgency, date_finish=date_finish)
 
         try:
             db.session.add(task)
@@ -184,7 +212,13 @@ def addtask():
             print()
             return "При добавлении задачи произошла ошибка"
     else:
-        return render_template("task_add.html")
+
+        name = current_user.fio
+        directions = Direction.query.order_by(Direction.id).all()
+        types = Type.query.order_by(Type.id).all()
+        users = User.query.order_by(User.id).all()
+        urgency = Urgency.query.order_by(Urgency.id).all()
+        return render_template("task_add.html", name=name, directions=directions, types=types, users=users, urgency=urgency)
 
 
 @app.route('/storagescripts')
@@ -211,5 +245,73 @@ def user(name,id):
     return "User page: " + name + " - " + str(id)
 
 
+@app.route('/admin_panel', methods=['POST', 'GET'])
+@login_required
+def admin():
+    users = User.query.order_by(User.id).all()
+    direction = Direction.query.order_by(Direction.id).all()
+    type_list = Type.query.order_by(Type.id).all()
+    return render_template("admin.html", users=users, direction=direction, type=type_list)
+
+
+@app.route('/admin_panel/add_direction', methods=['POST', 'GET'])
+@login_required
+def admin_add_redirection():
+    if request.method == "POST":
+        if request.form['add_direction']:
+            name = request.form['direction_name']
+            direction = Direction(name=name)
+            try:
+                db.session.add(direction)
+                db.session.commit()
+                return redirect("/admin_panel")
+            except:
+                return "При добавлении направления произошла ошибка"
+    return redirect("/admin_panel")
+
+
+@app.route('/admin_panel/add_type', methods=['POST', 'GET'])
+@login_required
+def admin_add_type():
+    if request.method == "POST":
+        if request.form['add_type']:
+            name = request.form['type_name']
+            type = Type(name=name)
+            try:
+                db.session.add(type)
+                db.session.commit()
+                return redirect("/admin_panel")
+            except:
+                return "При добавлении задачи произошла ошибка"
+    return redirect("/admin_panel")
+
+
+@app.route('/admin_panel/<int:id>/delete_type', methods=['POST', 'GET'])
+@login_required
+def admin_del_type(id):
+    type = Type.query.get_or_404(id)
+    try:
+        db.session.delete(type)
+        db.session.commit()
+        return redirect("/admin_panel")
+    except:
+        return "При удалении произошла ошибка"
+
+
+@app.route('/admin_panel/<int:id>/delete_direction', methods=['POST', 'GET'])
+@login_required
+def admin_del_dir(id):
+    direction = Direction.query.get_or_404(id)
+    try:
+        db.session.delete(direction)
+        db.session.commit()
+        return redirect("/admin_panel")
+    except:
+        return "При удалении произошла ошибка"
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
+
+

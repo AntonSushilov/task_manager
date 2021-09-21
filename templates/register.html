@@ -47,29 +47,6 @@
 </div>
 
 
-<table class="table table-striped table-hover table-bordered">
-    <thead>
-        <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Действия</th>
-            <th scope="col">Инициатор</th>
-            <th scope="col">Направление</th>>
-        </tr>
-    </thead>
-    <tbody>
-        {% for el in users %}
-            <tr>
-                <th scope="row">{{ el.id }}</th>
-                <td>{{ el.login }}</td>
-                <td>{{ el.fio }}</td>
-                <td>{{ el.password }}</td>
-            </tr>
-        {% endfor %}
-
-
-    </tbody>
-</table>
-
 
 
 </body>

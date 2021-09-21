@@ -1,4 +1,8 @@
 /* Авторизация */
+body{
+    overflow-y: scroll;
+}
+
 .authorization-form{
     display: flex;
     align-items: center;
