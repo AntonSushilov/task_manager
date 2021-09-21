@@ -1,8 +1,9 @@
-from flask import Flask, render_template, url_for, request, redirect
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from werkzeug.security import generate_password_hash,  check_password_hash
 
+from flask import Flask, render_template, request, redirect, flash
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://task_manager_admin:task_manager@localhost/task_manager'
@@ -11,6 +12,25 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'a really really really really long secret key'
 
 db = SQLAlchemy(app)
+login_manager = LoginManager(app)
+
+
+class User(db.Model, UserMixin):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, primary_key=True)
+    login = db.Column(db.String(20), unique=True, nullable=False)
+    fio = db.Column(db.String(20), nullable=False)
+    password = db.Column(db.String(1255), nullable=False)
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return '<User %r>' % self.login
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
 
 
 #Таблицы
@@ -44,19 +64,6 @@ class Task(db.Model):
         return '<Task %r>' % self.id
 
 
-class User(db.Model):
-    __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
-    login = db.Column(db.String(20), unique=True, nullable=False)
-    fio = db.Column(db.String(20), nullable=False)
-    password = db.Column(db.String(100), nullable=False)
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    def __repr__(self):
-        return '<User %r>' % self.login
-
-
 class Status(db.Model):
     __tablename__ = 'status'
     id = db.Column(db.Integer, primary_key=True)
@@ -85,46 +92,59 @@ class Urgency(db.Model):
 
 
 #
-@app.route('/useradd', methods=['POST', 'GET'])
-def useradd():
-    if request.method == "POST":
-        login = request.form['login']
-        password = request.form['password']
-        user = User(login=login, password=password)
 
-        try:
-            db.session.add(user)
-            db.session.commit()
-            return redirect('/authorization')
-        except:
-            return "При добавлении задачи произошла ошибка" +login+password
+
+@app.route('/login', methods=['POST', 'GET'])
+def login_page():
+    login = request.form.get('login')
+    password = request.form.get('password')
+    if login and password:
+        user_login = User.query.filter_by(login=login).first()
+
+        if user_login and check_password_hash(user_login.password, password):
+            login_user(user_login)
+            return render_template("tasks.html")
+        else:
+            flash('Неправильный логин или пароль')
     else:
-        return render_template("user_add.html")
+        flash('Заполните и логин и пароль')
+    return render_template("login.html")
 
 
-@app.route('/authorization')
-def authorization():
-    return render_template("authorization.html")
+
+@app.route('/logout', methods=['POST', 'GET'])
+@login_required
+def logout():
+    logout_user()
+    return render_template("login.html")
 
 
-@app.route('/registration', methods=['POST', 'GET'])
-def registration():
+@app.route('/register', methods=['POST', 'GET'])
+def register():
+
     if request.method == "POST":
+        users = User.query.order_by(User.id).all()
+
         login = request.form['login']
         fio = request.form['fio']
         password = request.form['password']
-
-        user = User(login=login, fio=fio, password=password)
-        try:
-            db.session.add(user)
-            db.session.commit()
-            return redirect('/registration')
-        except:
-            print()
-            return "При добавлении задачи произошла ошибка"
+        password2 = request.form['password2']
+        if not(login or fio or password or password2):
+            flash('Заполните все поля')
+        elif password != password2:
+            flash('Пароли не совпадают')
+        else:
+            hash_pwd = generate_password_hash(password)
+            new_user = User(login=login, fio=fio, password=hash_pwd)
+            try:
+                db.session.add(new_user)
+                db.session.commit()
+                return render_template('login.html')
+            except:
+                return "При добавлении задачи произошла ошибка"
     else:
         users = User.query.order_by(User.id).all()
-        return render_template("registration.html", users=users)
+    return render_template("register.html", users=users)
 
 
 @app.route('/')
@@ -135,12 +155,14 @@ def index():
 
 
 @app.route('/tasks/<int:id>')
+@login_required
 def task_detail(id):
     task = Task.query.get(id)
     return render_template("task_detail.html", task=task)
 
 
 @app.route('/taskadd', methods=['POST', 'GET'])
+@login_required
 def addtask():
     if request.method == "POST":
         user = request.form['user']
@@ -166,21 +188,25 @@ def addtask():
 
 
 @app.route('/storagescripts')
+@login_required
 def storagescripts():
     return render_template("storage_scripts.html")
 
 
 @app.route('/statistics')
+@login_required
 def statistics():
     return render_template("statistics.html")
 
 
 @app.route('/about')
+@login_required
 def about():
     return render_template("about.html")
 
 
 @app.route('/user/<string:name>/<int:id>')
+@login_required
 def user(name,id):
     return "User page: " + name + " - " + str(id)
 

@@ -10,8 +10,17 @@
     <title>Регистрация пользователя</title>
 </head>
 <body>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 <div class="container text-center">
-  <form class="authorization-form" action="/registration" method="post">
+  <form class="authorization-form" action="/register" method="post">
     <h1 class="h3 mb-3 fw-normal">Регистрация пользователя</h1>
 
     <div class="form-floating">
@@ -25,6 +34,10 @@
     <div class="form-floating">
       <input type="password" class="form-control" id="password"  name="password" placeholder="Пароль">
       <label for="password">Пароль</label>
+    </div>
+      <div class="form-floating">
+      <input type="password" class="form-control" id="password2"  name="password2" placeholder="Повторите пароль">
+      <label for="password2">Повторите пароль</label>
     </div>
 
     <button class="w-100 btn btn-lg btn-primary button-auth" type="submit">Регистрация</button>

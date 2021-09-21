@@ -10,8 +10,19 @@
     <title>Авторизация</title>
 </head>
 <body>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
 <div class="container text-center">
-  <form class="authorization-form" action="/authorization" method="post">
+  <form class="authorization-form" action="/login" method="post">
     <h1 class="h3 mb-3 fw-normal">Авторизация</h1>
 
     <div class="form-floating">
