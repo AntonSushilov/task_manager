@@ -13,6 +13,7 @@
             <input class="find form-control" type="text" id="myInputId" onkeyup="searchId()" placeholder="Поиск по ID..">
             <input class="find form-control" type="text" id="myInputName" onkeyup="searchName()" placeholder="Поиск по инициатору..">
             <input class="find form-control" type="text" id="myInputNameTo" onkeyup="searchNameTo()" placeholder="Поиск по Кому назначена..">
+            <input class="find form-control" type="text" id="myInputUrgency" onkeyup="searchUrgency()" placeholder="Поиск по Срочности..">
         </div>
     </div>
 </div>
@@ -27,7 +28,7 @@
             <th scope="col">Тип задачи</th>
             <th scope="col">Задание</th>
             <th scope="col">Кому назначена</th>
-            <th scope="col">Срочность</th>
+            <th scope="col">Приоритет</th>
             <th scope="col">Дата создания</th>
             <th scope="col">Срок исполнения</th>
             <th scope="col">Статус</th>
@@ -46,7 +47,15 @@
                     <div class="tasks-discription">{{ el.description }}</div>
                 </td>
                 <td>{{ el.to_user.fio }}</td>
-                <td>{{ el.urgency.name }}</td>
+                <td {% if el.urgency.name=="Зеленый" %}
+                    style="background-color:MediumSeaGreen;"
+                    {% elif el.urgency.name=="Желтый" %}
+                    style="background-color:Orange;"
+                    {% elif el.urgency.name=="Красный" %}
+                    style="background-color:Tomato;"
+                    {% endif%}>
+                    {{ el.urgency.name }}
+                </td>
                 <td>{{ el.date_start.strftime('%Y-%m-%d %H:%M') }}</td>
 
                 <td>{{ el.date_finish.strftime('%Y-%m-%d %H:%M') }}</td>
@@ -98,7 +107,7 @@
           }
         }
       }
-      function searchNameTo() {
+    function searchNameTo() {
         // Declare variables
         var input, filter, table, tr, td, i;
         input = document.getElementById("myInputNameTo");
@@ -116,6 +125,25 @@
             }
           }
         }
-      }
+    }
+    function searchUrgency() {
+        // Declare variables
+        var input, filter, table, tr, td, i;
+        input = document.getElementById("myInputUrgency");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+          td = tr[i].getElementsByTagName("td")[7];
+          if (td) {
+            if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+              tr[i].style.display = "";
+            } else {
+              tr[i].style.display = "none";
+            }
+          }
+        }
+    }
 </script>
 {% endblock %}

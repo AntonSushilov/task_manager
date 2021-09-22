@@ -5,5 +5,11 @@
 {% endblock %}
 
 {% block body %}
-<h1>Хранилище скриптов</h1>
+<div class="container">
+    <h1>Хранилище скриптов</h1>
+    <form action="/storagescripts" method="POST">
+        <a href="/storagescripts/open" class="btn btn-primary">Открыть папку</a>
+    </form>
+</div>
+
 {% endblock %}

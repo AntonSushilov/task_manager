@@ -9,7 +9,7 @@
 <div class="container">
     <h1>Детали задачи</h1>
     <div>
-        <form class="task-form" action="/taskadd" method="post">
+        <form class="task-form" action="/tasks/{{ task.id }}/update_task" method="post">
             <div class="mb-3">
                 <label class="form-label">ID</label>
                 <input  class="form-control" type="text" id="task_id" name="task_id" placeholder="ID" disabled value="{{ task.id }}">
@@ -47,10 +47,18 @@
                 </select>
             </div>
             <div class="mb-3">
-                <label class="form-label">Срочность</label>
+                <label class="form-label">Приоритет</label>
                 <select class="form-select" aria-label="Default select example" id="urgency" name="urgency">
                     {% for el in urgency %}
-                    <option value="{{ el.id }}" {% if el.id ==  task.urgency.id %}selected{% endif %}>{{ el.name }}</option>
+                        <option value="{{ el.id }}" {% if el.id==1 %}
+                        style="background-color:MediumSeaGreen;"
+                        {% elif el.id==2 %}
+                        style="background-color:Orange;"
+                        {% elif el.id==3 %}
+                        style="background-color:Tomato;"
+                        {% endif%} {% if el.id ==  task.urgency.id %}
+                        selected
+                        {% endif %}>{{ el.name }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -71,7 +79,7 @@
                 </select>
             </div>
             <input type="submit" class="btn btn-success" id="add_type" name="add_type" value="Отправить изменения">
-            <a href="/admin_panel/{{ task.id }}/delete_type" class="btn btn-danger">Удалить</a>
+            <a href="/tasks/{{ task.id }}/delete_task" class="btn btn-danger">Удалить</a>
 
         </form>
     </div>

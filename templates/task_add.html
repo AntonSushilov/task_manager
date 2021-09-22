@@ -44,9 +44,17 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">Срочность</label>
-                <select class="form-select" aria-label="Default select example" id="urgency" name="urgency">
+                <select class="form-select " aria-label=" select example" id="urgency" name="urgency" required>
                     {% for el in urgency %}
-                    <option value="{{ el.id }}">{{ el.name }}</option>
+                    <option value="{{ el.id }}"
+                    {% if el.id==1 %}
+                    style="background-color:MediumSeaGreen;"
+                    {% elif el.id==2 %}
+                    style="background-color:Orange;"
+                    {% elif el.id==3 %}
+                    style="background-color:Tomato;"
+                    {% endif%}
+                    >{{ el.name }}</option>
                     {% endfor %}
                 </select>
             </div>

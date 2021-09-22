@@ -38,8 +38,12 @@
                         <td>{{ el.fio }}</td>
                         <td>{{ el.role.name }}</td>
                         <td>
-                            <a href="/#/{{ el.id }}" class="btn btn-primary">Изменить</a>
-                            <a href="/#/{{ el.id }}" class="btn btn-danger">Удалить</a>
+                            <a href="/admin_panel/{{ el.id }}" class="btn btn-primary">Изменить</a>
+                            {% if el.role.id !=  2 %}
+                            <a href="/admin_panel/{{ el.id }}/user_delete" class="btn btn-danger">Удалить</a>
+                            {% endif %}
+
+
                         </td>
                     </tr>
                     {% endfor %}

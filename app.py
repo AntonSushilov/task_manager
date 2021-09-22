@@ -1,5 +1,5 @@
 from datetime import datetime
-
+import os
 from flask import Flask, render_template, request, redirect, flash, url_for
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
@@ -13,7 +13,8 @@ app.config['SECRET_KEY'] = 'a really really really really long secret key'
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
-
+login_manager.login_view = 'login_page'
+login_manager.login_message = ''
 
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
@@ -65,8 +66,8 @@ class Task(db.Model):
     urgency_id = db.Column(db.Integer, db.ForeignKey('urgency.id'), nullable=False)
     urgency = db.relationship('Urgency', foreign_keys=[urgency_id])
 
-    date_start = db.Column(db.DateTime(), default=datetime.utcnow())
-    date_finish = db.Column(db.DateTime(), default=datetime.utcnow)
+    date_start = db.Column(db.DateTime(), default=datetime.now())
+    date_finish = db.Column(db.DateTime(), default=datetime.now())
 
     status_id = db.Column(db.Integer, db.ForeignKey('status.id'), nullable=False, default='1')
     status = db.relationship('Status', foreign_keys=[status_id])
@@ -116,20 +117,23 @@ class Urgency(db.Model):
 
 @app.route('/login', methods=['POST', 'GET'])
 def login_page():
-    login = request.form.get('login')
-    password = request.form.get('password')
-    if login and password:
-        user_login = User.query.filter_by(login=login).first()
-
-        if user_login and check_password_hash(user_login.password, password):
-            login_user(user_login)
-            tasks = Task.query.order_by(Task.date_start.desc()).all()
-            return render_template("tasks.html", tasks=tasks)
-        else:
-            flash('Неправильный логин или пароль')
+    if current_user.is_authenticated:
+        return redirect("/tasks")
     else:
-        flash('Заполните и логин и пароль')
-    return render_template("login.html")
+        login = request.form.get('login')
+        password = request.form.get('password')
+        if login and password:
+            user_login = User.query.filter_by(login=login).first()
+
+            if user_login and check_password_hash(user_login.password, password):
+                login_user(user_login)
+                #tasks = Task.query.order_by(Task.date_start.desc()).all()
+                return redirect("/tasks")
+            else:
+                flash('Неправильный логин или пароль')
+        else:
+            flash('Заполните и логин и пароль')
+        return render_template("login.html")
 
 
 
@@ -141,31 +145,30 @@ def logout():
 
 
 @app.route('/register', methods=['POST', 'GET'])
+@login_required
 def register():
-
-    if request.method == "POST":
-        users = User.query.order_by(User.id).all()
-
-        login = request.form['login']
-        fio = request.form['fio']
-        password = request.form['password']
-        password2 = request.form['password2']
-        if not(login or fio or password or password2):
-            flash('Заполните все поля')
-        elif password != password2:
-            flash('Пароли не совпадают')
-        else:
-            hash_pwd = generate_password_hash(password)
-            new_user = User(login=login, fio=fio, password=hash_pwd)
-            try:
-                db.session.add(new_user)
-                db.session.commit()
-                return render_template('login.html')
-            except:
-                return "При добавлении задачи произошла ошибка"
+    if current_user.role.name == 'Admin':
+        if request.method == "POST":
+            login = request.form['login']
+            fio = request.form['fio']
+            password = request.form['password']
+            password2 = request.form['password2']
+            if not(login or fio or password or password2):
+                flash('Заполните все поля')
+            elif password != password2:
+                flash('Пароли не совпадают')
+            else:
+                hash_pwd = generate_password_hash(password)
+                new_user = User(login=login, fio=fio, password=hash_pwd)
+                try:
+                    db.session.add(new_user)
+                    db.session.commit()
+                    return redirect('/admin_panel')
+                except:
+                    return "При добавлении пользователя произошла ошибка"
+        return render_template("register.html")
     else:
-        users = User.query.order_by(User.id).all()
-    return render_template("register.html", users=users)
+        return redirect("/tasks")
 
 
 @app.route('/')
@@ -195,6 +198,49 @@ def task_detail(id):
     return render_template("task_detail.html", task=task,name=name, directions=directions, types=types, users=users, urgency=urgency, status=status)
 
 
+@app.route('/tasks/<int:id>/delete_task')
+@login_required
+def tasks_del_task(id):
+    task = Task.query.get_or_404(id)
+    try:
+        db.session.delete(task)
+        db.session.commit()
+        return redirect("/tasks")
+    except:
+        return "При удалении произошла ошибка"
+
+
+
+@app.route('/tasks/<int:id>/update_task', methods=['POST', 'GET'])
+@login_required
+def tasks_update_task(id):
+    task = Task.query.get(id)
+    print(id)
+    if request.method == "POST":
+        task.direction_id = request.form['direction']
+        task.type_id = request.form['type']
+        task.description = request.form['description']
+        task.to_user_id = request.form['to_user']
+        task.urgency_id = request.form['urgency']
+        task.date_finish = datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')
+        task.status_id = request.form['status']
+        try:
+            db.session.commit()
+            return redirect('/tasks')
+        except:
+            return "При редактировании задачи произошла ошибка"
+    else:
+
+        name = current_user.fio
+        directions = Direction.query.order_by(Direction.id).all()
+        types = Type.query.order_by(Type.id).all()
+        users = User.query.order_by(User.id).all()
+        urgency = Urgency.query.order_by(Urgency.id).all()
+        return render_template("task_add.html", name=name, directions=directions, types=types, users=users, urgency=urgency)
+
+
+
+
 @app.route('/taskadd', methods=['POST', 'GET'])
 @login_required
 def taskadd():
@@ -205,10 +251,11 @@ def taskadd():
         description = request.form['description']
         to_user = request.form['to_user']
         urgency = request.form['urgency']
+        date_start = datetime.now()
         date_finish = datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')
         print(user, direction, type, description, to_user, urgency, date_finish)
         task = Task(user_id=user, direction_id=direction, type_id=type, description=description, to_user_id=to_user,
-                    urgency_id=urgency, date_finish=date_finish)
+                    urgency_id=urgency, date_start=date_start, date_finish=date_finish)
 
         try:
             db.session.add(task)
@@ -227,9 +274,26 @@ def taskadd():
         return render_template("task_add.html", name=name, directions=directions, types=types, users=users, urgency=urgency)
 
 
-@app.route('/storagescripts')
+@app.route('/storagescripts', methods=['POST', 'GET'])
 @login_required
 def storagescripts():
+    return render_template("storage_scripts.html")
+
+
+
+@app.route('/storagescripts/open', methods=['POST', 'GET'])
+@login_required
+def storagescripts_open():
+
+    try:
+        path = "C:\\Users"
+        path = os.path.realpath(path)
+        os.startfile(path)
+        return redirect("/storagescripts")
+    except:
+        print("Файл не найден")
+
+
     return render_template("storage_scripts.html")
 
 
@@ -245,63 +309,165 @@ def about():
     return render_template("about.html")
 
 
-@app.route('/user/<string:name>/<int:id>')
+@app.route('/user/<string:login>/<int:id>')
 @login_required
-def user(name,id):
-    return "User page: " + name + " - " + str(id)
+def user(login,id):
+    user = User.query.get(id)
+    return render_template("user_home.html", user=user)
 
 
 @app.route('/admin_panel', methods=['POST', 'GET'])
 @login_required
 def admin():
-    users = User.query.order_by(User.id).all()
-    direction = Direction.query.order_by(Direction.id).all()
-    type_list = Type.query.order_by(Type.id).all()
-    return render_template("admin.html", users=users, direction=direction, type=type_list)
+    if current_user.role.name == 'Admin':
+        users = User.query.order_by(User.id).all()
+        direction = Direction.query.order_by(Direction.id).all()
+        type_list = Type.query.order_by(Type.id).all()
+        return render_template("admin.html", users=users, direction=direction, type=type_list)
+    else:
+        return redirect("/tasks")
+
+@app.route('/admin_panel/<int:id>')
+@login_required
+def user_detail(id):
+    user = User.query.get(id)
+    roles = Role.query.order_by(Role.id).all()
+    return render_template("user_update.html", user=user, roles=roles)
+
+
+@app.route('/user/<int:id>/user_update', methods=['POST', 'GET'])
+@login_required
+def home_update_user(id):
+    user = User.query.get(id)
+
+    if request.method == "POST":
+        fio = request.form['fio']
+        password = request.form['password']
+        password2 = request.form['password2']
+
+        if password and (password == password2):
+            hash_pwd = generate_password_hash(password)
+            user.password = hash_pwd
+            print("Пароль изменен")
+        else:
+            print("Пароль не изменен")
+
+        user.fio = fio
+        try:
+            db.session.commit()
+            return redirect('/admin_panel')
+        except:
+            return "При добавлении пользователя произошла ошибка"
+    else:
+        return redirect("/admin_panel")
+
+    print("current_user.role.name")
+    return redirect("/tasks")
+
+
+
+@app.route('/admin_panel/<int:id>/user_update', methods=['POST', 'GET'])
+@login_required
+def admin_update_user(id):
+    if current_user.role.name == 'Admin':
+        user = User.query.get(id)
+        if request.method == "POST":
+            login = request.form['login']
+            fio = request.form['fio']
+            password = request.form['password']
+            password2 = request.form['password2']
+
+            if password and (password == password2):
+                hash_pwd = generate_password_hash(password)
+                user.password = hash_pwd
+                print("Пароль изменен")
+            else:
+                print("Пароль не изменен")
+
+
+            user.login = login
+            user.fio = fio
+            try:
+                db.session.commit()
+                return redirect('/admin_panel' )
+            except:
+                return "При добавлении пользователя произошла ошибка"
+        else:
+
+            return redirect("/admin_panel")
+    else:
+        print("current_user.role.name")
+        return redirect("/tasks")
+
+
+
+@app.route('/admin_panel/<int:id>/user_delete', methods=['POST', 'GET'])
+@login_required
+def admin_del_user(id):
+    if current_user.role.name == 'Admin':
+        user = User.query.get_or_404(id)
+        if user.role.id != 2:
+            try:
+                db.session.delete(user)
+                db.session.commit()
+                return redirect("/admin_panel")
+            except:
+                return "При удалении произошла ошибка"
+        else:
+            return redirect("/admin_panel")
+    else:
+        return redirect("/tasks")
 
 
 @app.route('/admin_panel/add_direction', methods=['POST', 'GET'])
 @login_required
 def admin_add_redirection():
-    if request.method == "POST":
-        if request.form['add_direction']:
-            name = request.form['direction_name']
-            direction = Direction(name=name)
-            try:
-                db.session.add(direction)
-                db.session.commit()
-                return redirect("/admin_panel")
-            except:
-                return "При добавлении направления произошла ошибка"
-    return redirect("/admin_panel")
-
+    if current_user.role.name == 'Admin':
+        if request.method == "POST":
+            if request.form['add_direction']:
+                name = request.form['direction_name']
+                direction = Direction(name=name)
+                try:
+                    db.session.add(direction)
+                    db.session.commit()
+                    return redirect("/admin_panel")
+                except:
+                    return "При добавлении направления произошла ошибка"
+        return redirect("/admin_panel")
+    else:
+        return redirect("/tasks")
 
 @app.route('/admin_panel/add_type', methods=['POST', 'GET'])
 @login_required
 def admin_add_type():
-    if request.method == "POST":
-        if request.form['add_type']:
-            name = request.form['type_name']
-            type = Type(name=name)
-            try:
-                db.session.add(type)
-                db.session.commit()
-                return redirect("/admin_panel")
-            except:
-                return "При добавлении задачи произошла ошибка"
-    return redirect("/admin_panel")
-
+    if current_user.role.name == 'Admin':
+        if request.method == "POST":
+            if request.form['add_type']:
+                name = request.form['type_name']
+                type = Type(name=name)
+                try:
+                    db.session.add(type)
+                    db.session.commit()
+                    return redirect("/admin_panel")
+                except:
+                    return "При добавлении задачи произошла ошибка"
+        return redirect("/admin_panel")
+    else:
+        return redirect("/tasks")
 
 @app.route('/admin_panel/<int:id>/delete_type', methods=['POST', 'GET'])
 @login_required
 def admin_del_type(id):
-    type = Type.query.get_or_404(id)
-    try:
-        db.session.delete(type)
-        db.session.commit()
-        return redirect("/admin_panel")
-    except:
-        return "При удалении произошла ошибка"
+    if current_user.role.name == 'Admin':
+        type = Type.query.get_or_404(id)
+        try:
+            db.session.delete(type)
+            db.session.commit()
+            return redirect("/admin_panel")
+        except:
+            return "При удалении произошла ошибка"
+    else:
+        return redirect("/tasks")
 
 
 @app.route('/admin_panel/<int:id>/delete_direction', methods=['POST', 'GET'])
@@ -314,7 +480,6 @@ def admin_del_dir(id):
         return redirect("/admin_panel")
     except:
         return "При удалении произошла ошибка"
-
 
 
 if __name__ == "__main__":

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Редактирование пользователя
+{% endblock %}
+{% block body %}
+<div class="container text-center">
+  <form class="authorization-form" action="/admin_panel/{{ user.id }}/user_update" method="post">
+    <h1 class="h3 mb-3 fw-normal">Изменение пользователя</h1>
+        {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="h6 flashes">
+        {% for message in messages %}
+          {{ message }}
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+      <div class="form-floating">
+      <input type="text" class="form-control" id="id" name="id" placeholder="ID" disabled value="{{ user.id }}">
+      <label for="login">{{ user.id }}</label>
+    </div>
+    <div class="form-floating">
+      <input type="text" class="form-control" id="login" name="login" placeholder="Логин" value="{{ user.login }}">
+      <label for="login">{{ user.login }}</label>
+    </div>
+      <div class="form-floating">
+      <input type="text" class="form-control" id="fio" name="fio" placeholder="ФИО" value="{{ user.fio }}">
+      <label for="fio">{{ user.fio }}</label>
+    </div>
+    <div class="form-floating">
+        <select class="form-select" aria-label="Default select example" id="direction" name="direction" {% if user.id ==  1 %}disabled{% endif %}>
+            {% for el in roles %}
+            <option value="{{ el.id }}"{% if el.id ==  user.role.id %}selected{% endif %}>{{ el.name }} </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-floating">
+      <input type="password" class="form-control" id="password"  name="password" placeholder="Пароль">
+      <label for="password">Пароль</label>
+    </div>
+      <div class="form-floating">
+      <input type="password" class="form-control" id="password2"  name="password2" placeholder="Повторите пароль">
+      <label for="password2">Повторите пароль</label>
+    </div>
+
+    <button class="w-100 btn btn-lg btn-primary button-auth" type="submit">Отправить изменения</button>
+    <p class="mt-5 mb-3 text-muted">© 2021–2021</p>
+  </form>
+
+</div>
+
+{% endblock %}
