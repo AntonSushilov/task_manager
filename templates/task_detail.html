@@ -5,24 +5,76 @@
 {% endblock %}
 
 {% block body %}
+
 <div class="container">
-    <h3 scope="row">{{ task.id }}</h3>
-<h3>{{ task.user }}</h3>
-                <h3>{{ task.direction }}</h3>
-                <h3>{{ task.type }}</h3>
-                <h3>
-                    <div class="task-discription">{{ task.description }}</div>
+    <h1>Детали задачи</h1>
+    <div>
+        <form class="task-form" action="/taskadd" method="post">
+            <div class="mb-3">
+                <label class="form-label">ID</label>
+                <input  class="form-control" type="text" id="task_id" name="task_id" placeholder="ID" disabled value="{{ task.id }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Инициатор</label>
+                <input  class="form-control" type="text" id="user" name="user" placeholder="Пользователь" disabled value="{{ task.user.fio }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Направление</label>
+                <select class="form-select" aria-label="Default select example" id="direction" name="direction">
+                    {% for el in directions %}
+                    <option value="{{ el.id }}"{% if el.id ==  task.direction.id %}selected{% endif %}>{{ el.name }} </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Тип задачи</label>
+                <select class="form-select" aria-label="Default select example" id="type" name="type">
+                    {% for el in types %}
+                    <option value="{{ el.id }}" {% if el.id ==  task.type.id %}selected{% endif %}>{{ el.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Описание задачи (Обязательно описать Цели, Действия и Результат)</label>
+                <textarea class="form-control" name="description" id="description" cols="30" rows="10" placeholder="Описание">{{ task.description }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Кому назначить задачу</label>
+                <select class="form-select" aria-label="Default select example" id="to_user" name="to_user">
+                    {% for el in users %}
+                    <option value="{{ el.id }}" {% if el.id ==  task.to_user.id %}selected{% endif %}>{{ el.fio }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Срочность</label>
+                <select class="form-select" aria-label="Default select example" id="urgency" name="urgency">
+                    {% for el in urgency %}
+                    <option value="{{ el.id }}" {% if el.id ==  task.urgency.id %}selected{% endif %}>{{ el.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Дата и время начала задачи</label>
+                <input class="form-control" type="datetime-local" id="date_start" name="date_start" value="{{ task.date_start.strftime('%Y-%m-%dT%H:%M') }}" disabled>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Дата и время завершения задачи</label>
+                <input class="form-control" type="datetime-local" id="date_finish" name="date_finish" value="{{ task.date_finish.strftime('%Y-%m-%dT%H:%M') }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Статус задачи</label>
+                <select class="form-select" aria-label="Default select example" id="status" name="status">
+                    {% for el in status %}
+                    <option value="{{ el.id }}" {% if el.id ==  task.status.id %}selected{% endif %}>{{ el.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <input type="submit" class="btn btn-success" id="add_type" name="add_type" value="Отправить изменения">
+            <a href="/admin_panel/{{ task.id }}/delete_type" class="btn btn-danger">Удалить</a>
 
-                </h3>
-                <h3>{{ task.to_user }}</h3>
-                <h3>{{ task.urgency }}</h3>
-                <h3>{{ task.date_start.date() }}</h3>
-                <h3>{{ task.date_finish.date() }}</h3>
-                <h3>{{ task.status }}</h3>
-
-<a href="/index/{{ task.id }}" class="btn btn-primary">Изменить</a>
-                    <a href="/index/{{ task.id }}" class="btn btn-primary">Удалить</a>
-
+        </form>
+    </div>
 </div>
 
 {% endblock %}

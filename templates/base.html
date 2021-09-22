@@ -31,7 +31,11 @@
 
 
             <div class="text-end">
-                <a href="/authorization" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Авторизоваться</font></a>
+                {% if current_user.fio %}
+                    <a href="/logout" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Выйти</font></a>
+                {% else %}
+                    <a href="/login" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Авторизоваться</font></a>
+                {% endif %}
             </div>
           </div>
         </div>

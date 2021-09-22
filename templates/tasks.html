@@ -7,12 +7,12 @@
 {% block body %}
 <div class="container">
     <h1>Список доступных задач</h1>
-    <div>
-        <h3>Фильтр:</h3>
-        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-            <input class="find" type="text" id="myInputId" onkeyup="searchId()" placeholder="Поиск по ID..">
-            <input class="find" type="text" id="myInputName" onkeyup="searchName()" placeholder="Поиск по инициатору..">
-            <input class="find" type="text" id="myInputNameTo" onkeyup="searchNameTo()" placeholder="Поиск по Кому назначена..">
+    <div >
+        <h3 class="filter-title">Фильтры:</h3>
+        <div class="d-flex align-items-center justify-content-between">
+            <input class="find form-control" type="text" id="myInputId" onkeyup="searchId()" placeholder="Поиск по ID..">
+            <input class="find form-control" type="text" id="myInputName" onkeyup="searchName()" placeholder="Поиск по инициатору..">
+            <input class="find form-control" type="text" id="myInputNameTo" onkeyup="searchNameTo()" placeholder="Поиск по Кому назначена..">
         </div>
     </div>
 </div>

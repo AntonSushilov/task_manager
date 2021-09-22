@@ -186,12 +186,18 @@ def index():
 @login_required
 def task_detail(id):
     task = Task.query.get(id)
-    return render_template("task_detail.html", task=task)
+    name = current_user.fio
+    directions = Direction.query.order_by(Direction.id).all()
+    types = Type.query.order_by(Type.id).all()
+    users = User.query.order_by(User.id).all()
+    urgency = Urgency.query.order_by(Urgency.id).all()
+    status = Status.query.order_by(Status.id).all()
+    return render_template("task_detail.html", task=task,name=name, directions=directions, types=types, users=users, urgency=urgency, status=status)
 
 
 @app.route('/taskadd', methods=['POST', 'GET'])
 @login_required
-def addtask():
+def taskadd():
     if request.method == "POST":
         user = current_user.id
         direction = request.form['direction']

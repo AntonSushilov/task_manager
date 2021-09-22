@@ -10,29 +10,50 @@
     <h1>Форма добавления задания</h1>
     <div>
         <form class="task-form" action="/taskadd" method="post">
-            <input type="text" id="user" name="user" placeholder="Пользователь" disabled value="{{ name }}">
-            <select class="form-select" aria-label="Default select example" id="direction" name="direction">
-                {% for el in directions %}
-                <option value="{{ el.id }}">{{ el.name }} </option>
-                {% endfor %}
-            </select>
-            <select class="form-select" aria-label="Default select example" id="type" name="type">
-                {% for el in types %}
-                <option value="{{ el.id }}">{{ el.name }}</option>
-                {% endfor %}
-            </select>
-            <textarea name="description" id="description" cols="30" rows="10" placeholder="Описание"></textarea>
-            <select class="form-select" aria-label="Default select example" id="to_user" name="to_user">
-                {% for el in users %}
-                <option value="{{ el.id }}">{{ el.fio }}</option>
-                {% endfor %}
-            </select>
-            <select class="form-select" aria-label="Default select example" id="urgency" name="urgency">
-                {% for el in urgency %}
-                <option value="{{ el.id }}">{{ el.name }}</option>
-                {% endfor %}
-            </select>
-            <input type="datetime-local" id="date_finish" name="date_finish" placeholder="Дата завершения">
+            <div class="mb-3">
+                <label class="form-label">Инициатор</label>
+                <input  class="form-control" type="text" id="user" name="user" placeholder="Пользователь" disabled value="{{ name }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Направление</label>
+                <select class="form-select" aria-label="Default select example" id="direction" name="direction">
+                    {% for el in directions %}
+                    <option value="{{ el.id }}">{{ el.name }} </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Тип задачи</label>
+                <select class="form-select" aria-label="Default select example" id="type" name="type">
+                    {% for el in types %}
+                    <option value="{{ el.id }}">{{ el.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Описание задачи (Обязательно описать Цели, Действия и Результат)</label>
+                <textarea class="form-control" name="description" id="description" cols="30" rows="10" placeholder="Описание"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Кому назначить задачу</label>
+                <select class="form-select" aria-label="Default select example" id="to_user" name="to_user">
+                    {% for el in users %}
+                    <option value="{{ el.id }}">{{ el.fio }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Срочность</label>
+                <select class="form-select" aria-label="Default select example" id="urgency" name="urgency">
+                    {% for el in urgency %}
+                    <option value="{{ el.id }}">{{ el.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Дата и время завершения задачи</label>
+                <input class="form-control" type="datetime-local" id="date_finish" name="date_finish">
+            </div>
             <input type="submit" class="btn btn-success" value="Отправить">
 
         </form>
