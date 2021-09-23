@@ -82,7 +82,7 @@
                     {% endfor %}
                 </select>
             </div>
-            {% if not(current_user.id == task.user.id or current_user.id == task.to_user.id) or current_user.login == 'admin' %}
+            {% if (current_user.id == task.user.id or current_user.id == task.to_user.id) or current_user.role.name == 'Admin' %}
             <input type="submit" class="btn btn-success" id="add_type" name="add_type" value="Отправить изменения">
             <a href="/tasks/{{ task.id }}/delete_task" class="btn btn-danger">Удалить</a>
             {% endif %}
