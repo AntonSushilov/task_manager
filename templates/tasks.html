@@ -50,11 +50,11 @@
                     <div class="tasks-discription">{{ el.description }}</div>
                 </td>
                 <td>{{ el.to_user.fio }}</td>
-                <td {% if el.urgency.name=="Зеленый" %}
+                <td {% if el.urgency.name=="Низкий" %}
                     style="background-color:MediumSeaGreen;"
-                    {% elif el.urgency.name=="Желтый" %}
+                    {% elif el.urgency.name=="Средний" %}
                     style="background-color:Orange;"
-                    {% elif el.urgency.name=="Красный" %}
+                    {% elif el.urgency.name=="Высокий" %}
                     style="background-color:Tomato;"
                     {% endif%}>
                     {{ el.urgency.name }}

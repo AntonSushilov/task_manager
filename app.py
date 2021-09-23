@@ -319,13 +319,11 @@ def user(login,id):
 @app.route('/admin_panel', methods=['POST', 'GET'])
 @login_required
 def admin():
-    if current_user.role.name == 'Admin':
-        users = User.query.order_by(User.id).all()
-        direction = Direction.query.order_by(Direction.id).all()
-        type_list = Type.query.order_by(Type.id).all()
-        return render_template("admin.html", users=users, direction=direction, type=type_list)
-    else:
-        return redirect("/tasks")
+    users = User.query.order_by(User.id).all()
+    direction = Direction.query.order_by(Direction.id).all()
+    type_list = Type.query.order_by(Type.id).all()
+    return render_template("admin.html", users=users, direction=direction, type=type_list)
+
 
 @app.route('/admin_panel/<int:id>')
 @login_required
@@ -374,6 +372,8 @@ def admin_update_user(id):
         if request.method == "POST":
             login = request.form['login']
             fio = request.form['fio']
+
+            role = request.form['role']
             password = request.form['password']
             password2 = request.form['password2']
 
@@ -387,6 +387,7 @@ def admin_update_user(id):
 
             user.login = login
             user.fio = fio
+            user.role_id = role
             try:
                 db.session.commit()
                 return redirect('/admin_panel' )

@@ -3,11 +3,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 db.create_all()
 hash_pwd = generate_password_hash('admin')
-hash_pwd2 = generate_password_hash('user')
+hash_pwd2 = generate_password_hash('user1')
+hash_pwd3 = generate_password_hash('user2')
 u1 = User(login='admin', fio='Иванов И.И.', password=hash_pwd, role_id='2')
-u2 = User(login='user', fio='Петров П.П.', password=hash_pwd2)
+u2 = User(login='user1', fio='Петров П.П.', password=hash_pwd2)
+u3 = User(login='user2', fio='Сидоров С.С.', password=hash_pwd3)
 db.session.add(u1)
 db.session.add(u2)
+db.session.add(u3)
 
 r1 = Role(name='User')
 r2 = Role(name='Admin')
