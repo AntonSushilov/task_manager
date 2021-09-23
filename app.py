@@ -354,6 +354,10 @@ def home_update_user(id):
             hash_pwd = generate_password_hash(password)
             user.password = hash_pwd
             print("Пароль изменен")
+        elif password or password2 and (password != password2):
+            flash("Пароли не совпадают")
+            return redirect(url_for('user', login=user.login, id=user.id))
+
         else:
             print("Пароль не изменен")
 
