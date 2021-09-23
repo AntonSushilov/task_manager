@@ -293,7 +293,7 @@ def storagescripts():
 @login_required
 def storagescripts_open():
     try:
-        path = "C:\\Users"
+        path = "storagescripts"
         path = os.path.realpath(path)
         os.startfile(path)
         return redirect("/storagescripts")
