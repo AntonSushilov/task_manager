@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="e52fa4f4-03ab-4b53-93b8-083c8d86bfbd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/task_manager.db" beforeDir="false" afterPath="$PROJECT_DIR$/task_manager.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/storage_scripts.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/storage_scripts.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
