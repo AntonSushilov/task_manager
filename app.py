@@ -58,6 +58,7 @@ class Task(db.Model):
     type_id = db.Column(db.Integer, db.ForeignKey('type.id'), nullable=False)
     type = db.relationship('Type', foreign_keys=[type_id])
 
+    title = db.Column(db.Text, nullable=False)
     description = db.Column(db.Text, nullable=False)
 
     to_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -175,13 +176,6 @@ def register():
 @app.route('/tasks')
 def index():
     tasks = Task.query.order_by(Task.date_start.desc()).all()
-    #tasks = Task.query(Task.id, User.fio, Task.direction, Type.name,
-    #                    Task.description, User.fio, Urgency.name,
-     #                   Task.date_start, Task.date_finish,
-      #                  Status.name).filter(Task.user_id==User.id, Task.type_id==Type.id,
-       #                                     Task.to_user_id==User.id, Task.urgency_id==Urgency.id,
-        #                                    Task.status_id==Status.id).order_by(Task.date_start.desc())
-
     return render_template("tasks.html", tasks=tasks)
 
 
@@ -195,7 +189,8 @@ def task_detail(id):
     users = User.query.order_by(User.id).all()
     urgency = Urgency.query.order_by(Urgency.id).all()
     status = Status.query.order_by(Status.id).all()
-    return render_template("task_detail.html", task=task,name=name, directions=directions, types=types, users=users, urgency=urgency, status=status)
+    return render_template("task_detail.html", task=task, name=name, directions=directions, types=types, users=users,
+                           urgency=urgency, status=status)
 
 
 @app.route('/tasks/<int:id>/delete_task')
@@ -219,6 +214,7 @@ def tasks_update_task(id):
     if request.method == "POST":
         task.direction_id = request.form['direction']
         task.type_id = request.form['type']
+        task.title = request.form['title']
         task.description = request.form['description']
         task.to_user_id = request.form['to_user']
         task.urgency_id = request.form['urgency']
@@ -248,13 +244,17 @@ def taskadd():
         user = current_user.id
         direction = request.form['direction']
         type = request.form['type']
+        title = request.form['title']
         description = request.form['description']
         to_user = request.form['to_user']
         urgency = request.form['urgency']
         date_start = datetime.now()
-        date_finish = datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')
+        try:
+            date_finish = datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')
+        except:
+            date_finish = datetime.now()
         print(user, direction, type, description, to_user, urgency, date_finish)
-        task = Task(user_id=user, direction_id=direction, type_id=type, description=description, to_user_id=to_user,
+        task = Task(user_id=user, direction_id=direction, type_id=type, title=title, description=description, to_user_id=to_user,
                     urgency_id=urgency, date_start=date_start, date_finish=date_finish)
 
         try:

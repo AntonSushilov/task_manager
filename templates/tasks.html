@@ -12,6 +12,7 @@
         <div class="d-flex align-items-center justify-content-between">
             <input class="find form-control" type="text" id="myInputId" onkeyup="searchId()" placeholder="Поиск по ID..">
             <input class="find form-control" type="text" id="myInputName" onkeyup="searchName()" placeholder="Поиск по инициатору..">
+            <input class="find form-control" type="text" id="myInputTitle" onkeyup="searchTitle()" placeholder="Поиск по Названию задачи..">
             <input class="find form-control" type="text" id="myInputNameTo" onkeyup="searchNameTo()" placeholder="Поиск по Кому назначена..">
             <input class="find form-control" type="text" id="myInputUrgency" onkeyup="searchUrgency()" placeholder="Поиск по Срочности..">
         </div>
@@ -26,6 +27,7 @@
             <th scope="col">Инициатор</th>
             <th scope="col">Направление</th>
             <th scope="col">Тип задачи</th>
+            <th scope="col">Название</th>
             <th scope="col">Задание</th>
             <th scope="col">Кому назначена</th>
             <th scope="col">Приоритет</th>
@@ -43,6 +45,7 @@
                 <td>{{ el.user.fio }}</td>
                 <td>{{ el.direction.name }}</td>
                 <td>{{ el.type.name }}</td>
+                <td>{{ el.title }}</td>
                 <td>
                     <div class="tasks-discription">{{ el.description }}</div>
                 </td>
@@ -57,7 +60,6 @@
                     {{ el.urgency.name }}
                 </td>
                 <td>{{ el.date_start.strftime('%Y-%m-%d %H:%M') }}</td>
-
                 <td>{{ el.date_finish.strftime('%Y-%m-%d %H:%M') }}</td>
                 <td>{{ el.status.name }}</td>
             </tr>
@@ -107,6 +109,25 @@
           }
         }
       }
+       function searchTitle() {
+        // Declare variables
+        var input, filter, table, tr, td, i;
+        input = document.getElementById("myInputTitle");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+          td = tr[i].getElementsByTagName("td")[5];
+          if (td) {
+            if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+              tr[i].style.display = "";
+            } else {
+              tr[i].style.display = "none";
+            }
+          }
+        }
+      }
     function searchNameTo() {
         // Declare variables
         var input, filter, table, tr, td, i;
@@ -116,7 +137,7 @@
         tr = table.getElementsByTagName("tr");
         // Loop through all table rows, and hide those who don't match the search query
         for (i = 0; i < tr.length; i++) {
-          td = tr[i].getElementsByTagName("td")[6];
+          td = tr[i].getElementsByTagName("td")[7];
           if (td) {
             if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
               tr[i].style.display = "";
@@ -135,7 +156,7 @@
         tr = table.getElementsByTagName("tr");
         // Loop through all table rows, and hide those who don't match the search query
         for (i = 0; i < tr.length; i++) {
-          td = tr[i].getElementsByTagName("td")[7];
+          td = tr[i].getElementsByTagName("td")[8];
           if (td) {
             if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
               tr[i].style.display = "";
