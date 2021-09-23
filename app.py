@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 from flask import Flask, render_template, request, redirect, flash, url_for
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user, AnonymousUserMixin
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -15,6 +15,15 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login_page'
 login_manager.login_message = ''
+
+
+class Anonymous(AnonymousUserMixin):
+  def __init__(self):
+    self.role = 'Guest'
+
+
+login_manager.anonymous_user = Anonymous
+
 
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
@@ -280,11 +289,9 @@ def storagescripts():
     return render_template("storage_scripts.html")
 
 
-
 @app.route('/storagescripts/open', methods=['POST', 'GET'])
 @login_required
 def storagescripts_open():
-
     try:
         path = "C:\\Users"
         path = os.path.realpath(path)
@@ -484,6 +491,6 @@ def admin_del_dir(id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5005, debug=True)
 
 

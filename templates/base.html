@@ -31,11 +31,12 @@
 
 
             <div class="d-flex text-end">
-                <a href="/admin_panel" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Админка</font></a>
+
                 {% if current_user.role.name == 'Admin' %}
                     <a href="/register" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Добавить пользователя</font></a>
                 {% endif %}
-                {% if current_user.fio %}
+                {% if current_user.login %}
+                    <a href="/admin_panel" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Админка</font></a>
                     <a href="/user/{{ current_user.login }}/{{ current_user.id}}" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Личный кабинет</font></a>
                     <a href="/logout" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Выйти</font></a>
                 {% else %}

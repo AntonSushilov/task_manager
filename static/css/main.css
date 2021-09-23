@@ -64,3 +64,10 @@ body{
 .authorization-form{
     margin-top:3%;
 }
+
+.tasks-table{
+    max-width: 1920px;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-x: auto;
+}
