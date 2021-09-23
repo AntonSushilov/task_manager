@@ -29,7 +29,7 @@
       <label for="fio">ФИО</label>
     </div>
     <div class="form-floating">
-        <select class="form-select" aria-label="Default select example" id="role" name="role" >
+        <select class="select-role form-select" aria-label="Default select example" id="role" name="role" >
             {% for el in roles %}
             <option value="{{ el.id }}"{% if el.id ==  user.role.id %}selected{% elif user.id == 1 %}disabled{% endif %} >{{ el.name }} </option>
             {% endfor %}
