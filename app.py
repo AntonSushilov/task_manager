@@ -105,6 +105,8 @@ class Task(db.Model):
     status_id = db.Column(db.Integer, db.ForeignKey('status.id'), nullable=False, default='1')
     status = db.relationship('Status', foreign_keys=[status_id])
 
+    rating = db.Column(db.Integer, nullable=False,  default='0')
+
     def __repr__(self):
         return '<Task %r>' % self.id
 
