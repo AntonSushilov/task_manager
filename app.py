@@ -1,7 +1,8 @@
-from datetime import datetime
 import os
+from datetime import datetime
 from flask import Flask, render_template, request, redirect, flash, url_for
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user, AnonymousUserMixin
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user, \
+    AnonymousUserMixin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -22,9 +23,10 @@ app.config['CKEDITOR_PKG_TYPE'] = 'standard'
 
 ckeditor = CKEditor(app)
 
+
 class Anonymous(AnonymousUserMixin):
-  def __init__(self):
-    self.role = 'Guest'
+    def __init__(self):
+        self.role = 'Guest'
 
 
 login_manager.anonymous_user = Anonymous
@@ -70,13 +72,11 @@ class Log(db.Model):
 
     description = db.Column(db.Text, nullable=False)
 
-
-
     def __repr__(self):
         return '<Log %r>' % self.description
 
 
-#Таблицы
+# Таблицы
 class Task(db.Model):
     __tablename__ = 'task'
     id = db.Column(db.Integer, primary_key=True)
@@ -145,9 +145,6 @@ class Urgency(db.Model):
         return '<Urgency %r>' % self.name
 
 
-#
-
-
 @app.route('/login', methods=['POST', 'GET'])
 def login_page():
     if current_user.is_authenticated:
@@ -160,14 +157,12 @@ def login_page():
 
             if user_login and check_password_hash(user_login.password, password):
                 login_user(user_login)
-                #tasks = Task.query.order_by(Task.date_start.desc()).all()
                 return redirect("/tasks")
             else:
                 flash('Неправильный логин или пароль')
         else:
             flash('Заполните и логин и пароль')
         return render_template("login.html")
-
 
 
 @app.route('/logout', methods=['POST', 'GET'])
@@ -186,7 +181,7 @@ def register():
             fio = request.form['fio']
             password = request.form['password']
             password2 = request.form['password2']
-            if not(login or fio or password or password2):
+            if not (login or fio or password or password2):
                 flash('Заполните все поля')
             elif password != password2:
                 flash('Пароли не совпадают')
@@ -214,7 +209,6 @@ def index():
 @app.route('/tasks/<int:id>')
 @login_required
 def task_detail(id):
-
     task = Task.query.get(id)
     logs = Log.query.filter_by(task_id=id)
     name = current_user.fio
@@ -225,8 +219,6 @@ def task_detail(id):
     status = Status.query.order_by(Status.id).all()
     return render_template("task_detail.html", task=task, name=name, directions=directions, types=types, users=users,
                            urgency=urgency, status=status, logs=logs)
-
-
 
 
 @app.route('/tasks/<int:id>/delete_task')
@@ -246,14 +238,13 @@ def tasks_del_task(id):
         return "При удалении произошла ошибка"
 
 
-
 @app.route('/tasks/<int:id>/update_task', methods=['POST', 'GET'])
 @login_required
 def tasks_update_task(id):
     task = Task.query.get(id)
     print(id)
     if request.method == "POST":
-        log_descr = "<dt>"+current_user.fio+"</dt>"
+        log_descr = "<dt>" + current_user.fio + "</dt>"
         task.direction_id = request.form['direction']
         task.type_id = request.form['type']
         task.title = request.form['title']
@@ -267,20 +258,21 @@ def tasks_update_task(id):
         task.to_user_id = request.form['to_user']
 
         if str(task.urgency_id) != str(request.form['urgency']):
-            log_descr += "<dd>Изменил приоритет на: "+Urgency.query.get(request.form['urgency']).name+"</dd>"
+            log_descr += "<dd>Изменил приоритет на: " + Urgency.query.get(request.form['urgency']).name + "</dd>"
         task.urgency_id = request.form['urgency']
 
         if str(task.date_finish) != str(datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')):
-            log_descr += "<dd>Изменил время на: "+str(datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M'))+"</dd>"
+            log_descr += "<dd>Изменил время на: " + str(
+                datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')) + "</dd>"
         task.date_finish = datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')
 
         if str(task.status_id) != str(request.form['status']):
-            log_descr += "<dd>Изменил статус на: " + Status.query.get(request.form['status']).name+"</dd>"
+            log_descr += "<dd>Изменил статус на: " + Status.query.get(request.form['status']).name + "</dd>"
         task.status_id = request.form['status']
 
         print(log_descr)
-        if log_descr != str("<dt>"+current_user.fio+"</dt>"):
-            log_descr += " ("+datetime.now().strftime('%Y-%m-%d %H:%M')+")"
+        if log_descr != str("<dt>" + current_user.fio + "</dt>"):
+            log_descr += " (" + datetime.now().strftime('%Y-%m-%d %H:%M') + ")"
             user = current_user.id
             log = Log(task_id=id, user_id=user, description=log_descr)
             db.session.add(log)
@@ -298,9 +290,8 @@ def tasks_update_task(id):
         types = Type.query.order_by(Type.id).all()
         users = User.query.order_by(User.id).all()
         urgency = Urgency.query.order_by(Urgency.id).all()
-        return render_template("task_add.html", name=name, directions=directions, types=types, users=users, urgency=urgency)
-
-
+        return render_template("task_add.html", name=name, directions=directions, types=types, users=users,
+                               urgency=urgency)
 
 
 @app.route('/taskadd', methods=['POST', 'GET'])
@@ -319,16 +310,16 @@ def taskadd():
             date_finish = datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')
         except:
             date_finish = datetime.now()
-        task = Task(user_id=user, direction_id=direction, type_id=type, title=title, description=description, to_user_id=to_user,
+        task = Task(user_id=user, direction_id=direction, type_id=type, title=title, description=description,
+                    to_user_id=to_user,
                     urgency_id=urgency, date_start=date_start, date_finish=date_finish)
-
-
 
         db.session.add(task)
         db.session.commit()
         task_id = Task.query.order_by(Task.id.desc()).first().id
-        if to_user!="0":
-            log_descr ="<dt>"+ current_user.fio +"</dt>"+ "<dd> Cоздал задачу и назначил на: " + User.query.get(to_user).fio+"</dd>"
+        if to_user != "0":
+            log_descr = "<dt>" + current_user.fio + "</dt>" + "<dd> Cоздал задачу и назначил на: " + User.query.get(
+                to_user).fio + "</dd>"
         else:
             log_descr = "<dt>" + current_user.fio + "</dt>" + "<dd> Cоздал задачу"
         log_descr += " (" + datetime.now().strftime('%Y-%m-%d %H:%M') + ")"
@@ -346,9 +337,10 @@ def taskadd():
         name = current_user.fio
         directions = Direction.query.order_by(Direction.id).all()
         types = Type.query.order_by(Type.id).all()
-        users = User.query.order_by(User.id).filter(User.id!='1')
+        users = User.query.order_by(User.id).filter(User.id != '1')
         urgency = Urgency.query.order_by(Urgency.id).all()
-        return render_template("task_add.html", name=name, directions=directions, types=types, users=users, urgency=urgency)
+        return render_template("task_add.html", name=name, directions=directions, types=types, users=users,
+                               urgency=urgency)
 
 
 @app.route('/storagescripts', methods=['POST', 'GET'])
@@ -368,7 +360,6 @@ def storagescripts_open():
     except:
         print("Файл не найден")
 
-
     return render_template("storage_scripts.html")
 
 
@@ -376,21 +367,25 @@ def storagescripts_open():
 @login_required
 def statistics():
     # res = Task.query.group_by(Task.user_id).all()
-    #res = Task.query.join(User, User.id == Task.user_id).group_by(User.id).all()
-    user = User.query.with_entities(User.id, User.fio)\
-        .filter((User.id != 1))\
-        .order_by(User.id)\
+    # res = Task.query.join(User, User.id == Task.user_id).group_by(User.id).all()
+    user = User.query.with_entities(User.id, User.fio) \
+        .filter((User.id != 1)) \
+        .order_by(User.id) \
         .all()
-    tasks = Task.query.with_entities(Task.user_id, func.count(Task.user_id)) \
-        .group_by(Task.user_id) \
-        .order_by(Task.user_id).all()
 
-    tasks = Task.query.with_entities(Task.to_user_id, func.count(Task.to_user_id)) \
+    tasks = Task.query \
+        .with_entities(Task.user_id, func.count(Task.user_id)) \
+        .group_by(Task.user_id) \
+        .order_by(Task.user_id) \
+        .all()
+
+    tasks = Task.query \
+        .with_entities(Task.to_user_id, func.count(Task.to_user_id)) \
         .group_by(Task.to_user_id) \
-        .order_by(Task.to_user_id).all()
+        .order_by(Task.to_user_id) \
+        .all()
     print(user)
     print(tasks)
-
 
     return render_template("statistics.html", res=tasks, user=user)
 
@@ -403,9 +398,10 @@ def about():
 
 @app.route('/user/<string:login>/<int:id>')
 @login_required
-def user(login,id):
+def user(login, id):
     user = User.query.get(id)
-    tasks = Task.query.filter((Task.user_id == user.id)|(Task.to_user_id == user.id)).order_by(Task.date_start.desc()).all()
+    tasks = Task.query.filter((Task.user_id == user.id) | (Task.to_user_id == user.id)).order_by(
+        Task.date_start.desc()).all()
     return render_template("user_home.html", user=user, tasks=tasks)
 
 
@@ -460,7 +456,6 @@ def home_update_user(id):
     return redirect("/tasks")
 
 
-
 @app.route('/admin_panel/<int:id>/user_update', methods=['POST', 'GET'])
 @login_required
 def admin_update_user(id):
@@ -481,13 +476,12 @@ def admin_update_user(id):
             else:
                 print("Пароль не изменен")
 
-
             user.login = login
             user.fio = fio
             user.role_id = role
             try:
                 db.session.commit()
-                return redirect('/admin_panel' )
+                return redirect('/admin_panel')
             except:
                 return "При добавлении пользователя произошла ошибка"
         else:
@@ -496,7 +490,6 @@ def admin_update_user(id):
     else:
         print("current_user.role.name")
         return redirect("/tasks")
-
 
 
 @app.route('/admin_panel/<int:id>/user_delete', methods=['POST', 'GET'])
@@ -535,6 +528,7 @@ def admin_add_redirection():
     else:
         return redirect("/tasks")
 
+
 @app.route('/admin_panel/add_type', methods=['POST', 'GET'])
 @login_required
 def admin_add_type():
@@ -552,6 +546,7 @@ def admin_add_type():
         return redirect("/admin_panel")
     else:
         return redirect("/tasks")
+
 
 @app.route('/admin_panel/<int:id>/delete_type', methods=['POST', 'GET'])
 @login_required
@@ -582,5 +577,3 @@ def admin_del_dir(id):
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5005, debug=True)
-
-

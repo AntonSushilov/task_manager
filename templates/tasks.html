@@ -15,6 +15,7 @@
             <input class="find form-control" type="text" id="myInputTitle" onkeyup="searchTitle()" placeholder="Поиск по Названию задачи..">
             <input class="find form-control" type="text" id="myInputNameTo" onkeyup="searchNameTo()" placeholder="Поиск по Исполнителю..">
             <input class="find form-control" type="text" id="myInputUrgency" onkeyup="searchUrgency()" placeholder="Поиск по Срочности..">
+            <button id="export" class="btn btn-success">Export to excel</button>
         </div>
     </div>
 </div>
@@ -169,4 +170,11 @@
         }
     }
 </script>
+<script>
+      var table2excel = new Table2Excel();
+
+      document.getElementById('export').addEventListener('click', function() {
+        table2excel.export(document.querySelectorAll('table'));
+      });
+    </script>
 {% endblock %}

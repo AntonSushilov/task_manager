@@ -83,6 +83,12 @@
                     {% endfor %}
                 </select>
             </div>
+            <div class="mb-3">
+                <label for="customRange" class="form-label">Оценка</label>
+            <input type="range" class="form-range" min="0" max="5" id="customRange" value="3">
+            </div>
+
+
             {% if (current_user.id == task.user.id or current_user.id == task.to_user.id or task.to_user.id == null) or current_user.role.name == 'Admin' %}
             <input type="submit" class="btn btn-success" id="add_type" name="add_type" value="Отправить изменения">
             <a href="/tasks/{{ task.id }}/delete_task" class="btn btn-danger">Удалить</a>
