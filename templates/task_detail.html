@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block body %}
-
+{{ ckeditor.load() }}
 <div class="container">
     <h1>Детали задачи</h1>
     <div>
@@ -39,12 +39,13 @@
                 <textarea class="form-control" name="title" id="title" cols="30" rows="1" placeholder="Название">{{ task.title }}</textarea>
             </div>
             <div class="mb-3">
-                <label class="form-label">Описание задачи (Обязательно описать Цели, Действия и Результат)</label>
-                <textarea class="form-control" name="description" id="description" cols="30" rows="10" placeholder="Описание">{{ task.description }}</textarea>
+                <label class="form-label">Описание задачи</label>
+                {{ ckeditor.create(name='description', value=task.description ) }}
             </div>
             <div class="mb-3">
                 <label class="form-label">Кому назначить задачу</label>
                 <select class="form-select" aria-label="Default select example" id="to_user" name="to_user">
+                    <option value="0"></option>
                     {% for el in users %}
                     <option value="{{ el.id }}" {% if el.id ==  task.to_user.id %}selected{% endif %}>{{ el.fio }}</option>
                     {% endfor %}
@@ -82,12 +83,21 @@
                     {% endfor %}
                 </select>
             </div>
-            {% if (current_user.id == task.user.id or current_user.id == task.to_user.id) or current_user.role.name == 'Admin' %}
+            {% if (current_user.id == task.user.id or current_user.id == task.to_user.id or task.to_user.id == null) or current_user.role.name == 'Admin' %}
             <input type="submit" class="btn btn-success" id="add_type" name="add_type" value="Отправить изменения">
             <a href="/tasks/{{ task.id }}/delete_task" class="btn btn-danger">Удалить</a>
             {% endif %}
             <a href="/tasks" class="btn btn-primary">Вернуться</a>
         </form>
+
+        <label class="form-label">Логи задачи</label>
+        <div class="logs">
+            {% for el in logs %}
+                {{ el.description|safe }}
+             {% endfor %}
+        </div>
+
+
     </div>
 </div>
 

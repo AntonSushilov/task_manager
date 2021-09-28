@@ -6,6 +6,8 @@
 
 {% block body %}
 
+{{ ckeditor.load() }}
+
 <div class="container">
     <h1>Форма добавления задания</h1>
     <div>
@@ -35,12 +37,15 @@
                 <textarea class="form-control" name="title" id="title" cols="30" rows="1" placeholder="Название"></textarea>
             </div>
             <div class="mb-3">
-                <label class="form-label">Описание задачи (Обязательно описать Цели, Действия и Результат)</label>
-                <textarea class="form-control" name="description" id="description" cols="30" rows="10" placeholder="Описание"></textarea>
+                <label class="form-label">Описание задачи</label>
+
+                {{ ckeditor.create(name='description') }}
+<!--                <textarea class="form-control" name="description" id="description" cols="30" rows="10" placeholder="Описание"></textarea>-->
             </div>
             <div class="mb-3">
                 <label class="form-label">Кому назначить задачу</label>
                 <select class="form-select" aria-label="Default select example" id="to_user" name="to_user">
+                    <option value="0"></option>
                     {% for el in users %}
                     <option value="{{ el.id }}">{{ el.fio }}</option>
                     {% endfor %}

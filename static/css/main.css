@@ -20,8 +20,6 @@ body{
     margin-bottom: 10px;
 }
 
-
-#
 .header-logo{
     display: flex;
     align-items: center;
@@ -36,6 +34,22 @@ body{
     overflow-y: scroll;
     word-wrap: break-word;
 }
+
+.tasks-discription tbody, td, tfoot, th, thead, tr {
+    border-color: inherit;
+    border-style: solid;
+    border-width: 1px;
+}
+.td-time{
+    width: 100px;
+}
+.td-90px{
+    width: 90px;
+}
+.td-10px{
+    width: 10px;
+}
+
 
 /**/
 .task-form{
@@ -74,4 +88,13 @@ body{
 
 .select-role{
     width: 206.8px;
+}
+
+.logs{
+    border: 1px solid darkgrey; /* Параметры границы */
+    padding: 10px; /* Поля вокруг текста */
+    border-radius: 5px;
+    margin-bottom: 10px;
+    max-height: 200px;
+    overflow-y: scroll;
 }

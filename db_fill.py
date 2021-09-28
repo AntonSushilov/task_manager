@@ -3,14 +3,28 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 db.create_all()
 hash_pwd = generate_password_hash('admin')
-hash_pwd2 = generate_password_hash('user1')
-hash_pwd3 = generate_password_hash('user2')
-u1 = User(login='admin', fio='Иванов И.И.', password=hash_pwd, role_id='2')
-u2 = User(login='user1', fio='Петров П.П.', password=hash_pwd2)
-u3 = User(login='user2', fio='Сидоров С.С.', password=hash_pwd3)
+hash_pwd2 = generate_password_hash('user')
+hash_pwd2 = generate_password_hash('user')
+hash_pwd2 = generate_password_hash('user')
+hash_pwd2 = generate_password_hash('user')
+hash_pwd2 = generate_password_hash('user')
+u1 = User(login='admin', fio='Admin A.A.', password=hash_pwd, role_id='2')
+u2 = User(login='novozhilov_s_a', fio='Новожилов С.А.', password=hash_pwd2)
+u3 = User(login='lupol_d_i', fio='Лупол Д.И.', password=hash_pwd2)
+u4 = User(login='eckert_n_a', fio='Экерт Н.А.', password=hash_pwd2)
+u5 = User(login='akhmaev_r_f', fio='Ахмаев Р.Ф.', password=hash_pwd2)
+u6 = User(login='sushilov_a_a', fio='Сушилов А.А.', password=hash_pwd2)
+
 db.session.add(u1)
 db.session.add(u2)
 db.session.add(u3)
+db.session.add(u4)
+db.session.add(u5)
+db.session.add(u6)
+
+
+
+
 
 r1 = Role(name='User')
 r2 = Role(name='Admin')
@@ -18,12 +32,16 @@ db.session.add(r1)
 db.session.add(r2)
 
 
-d1 = Direction(name='ОАОП')
+d1 = Direction(name='ВХД')
 d2 = Direction(name='Комплаенс')
-d3 = Direction(name='ВХД')
+d3 = Direction(name='Касса и инкассация')
+d4 = Direction(name='Operations')
+d5 = Direction(name='IT')
 db.session.add(d1)
 db.session.add(d2)
 db.session.add(d3)
+db.session.add(d4)
+db.session.add(d5)
 
 st1 = Status(name='Ожидание')
 st2 = Status(name='В работе')

@@ -8,5 +8,27 @@
 <div class="container">
     <h1>Статистика</h1>
 </div>
+<div class="tasks-table">
+    <table class="table table-striped table-hover table-bordered" id="myTable">
+    <thead>
+            <th scope="col" class="">Сотрудник</th>
+            <th scope="col" class="">Всего создано</th>
+            <th scope="col" class="">Всего назначено</th>
+            <th scope="col" class="">В ожидании</th>
+            <th scope="col" class="">В работе</th>
+            <th scope="col" class="">Выполнено</th>
+    </thead>
+    <tbody>
+        {% for el in user, res %}
+            <tr>
+                <td>{{el[0][0]}}</td>
+                <td>{{el[1]}}</td>
+                <td>{{el[2]}}</td>
+            </tr>
+        {% endfor %}
 
+
+    </tbody>
+</table>
+</div>
 {% endblock %}

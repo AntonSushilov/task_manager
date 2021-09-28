@@ -3,10 +3,11 @@ import os
 from flask import Flask, render_template, request, redirect, flash, url_for
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user, AnonymousUserMixin
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_ckeditor import CKEditor
 
 app = Flask(__name__)
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://task_manager_admin:task_manager@localhost/task_manager'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///task_manager.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'a really really really really long secret key'
@@ -16,6 +17,10 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login_page'
 login_manager.login_message = ''
 
+app.config['CKEDITOR_SERVE_LOCAL'] = 'True'
+app.config['CKEDITOR_PKG_TYPE'] = 'standard'
+
+ckeditor = CKEditor(app)
 
 class Anonymous(AnonymousUserMixin):
   def __init__(self):
@@ -51,6 +56,24 @@ class Role(db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
+
+
+class Log(db.Model):
+    __tablename__ = 'logs'
+    id = db.Column(db.Integer, primary_key=True)
+
+    task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=False)
+    task = db.relationship('Task', foreign_keys=[task_id])
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', foreign_keys=[user_id])
+
+    description = db.Column(db.Text, nullable=False)
+
+
+
+    def __repr__(self):
+        return '<Log %r>' % self.description
 
 
 #Таблицы
@@ -191,23 +214,32 @@ def index():
 @app.route('/tasks/<int:id>')
 @login_required
 def task_detail(id):
+
     task = Task.query.get(id)
+    logs = Log.query.filter_by(task_id=id)
     name = current_user.fio
     directions = Direction.query.order_by(Direction.id).all()
     types = Type.query.order_by(Type.id).all()
-    users = User.query.order_by(User.id).all()
+    users = User.query.order_by(User.id).filter(User.id != '1')
     urgency = Urgency.query.order_by(Urgency.id).all()
     status = Status.query.order_by(Status.id).all()
     return render_template("task_detail.html", task=task, name=name, directions=directions, types=types, users=users,
-                           urgency=urgency, status=status)
+                           urgency=urgency, status=status, logs=logs)
+
+
 
 
 @app.route('/tasks/<int:id>/delete_task')
 @login_required
 def tasks_del_task(id):
     task = Task.query.get_or_404(id)
+    logs = Log.query.filter_by(task_id=id).all()
+    print(logs)
+
     try:
         db.session.delete(task)
+        for i in logs:
+            db.session.delete(i)
         db.session.commit()
         return redirect("/tasks")
     except:
@@ -221,14 +253,39 @@ def tasks_update_task(id):
     task = Task.query.get(id)
     print(id)
     if request.method == "POST":
+        log_descr = "<dt>"+current_user.fio+"</dt>"
         task.direction_id = request.form['direction']
         task.type_id = request.form['type']
         task.title = request.form['title']
         task.description = request.form['description']
+
+        if str(task.to_user_id) != str(request.form['to_user']):
+            if request.form['to_user'] == '0':
+                log_descr += "<dd>Снял назначение</dd>"
+            else:
+                log_descr += "<dd>Переназначил на: " + User.query.get(request.form['to_user']).fio + "</dd>"
         task.to_user_id = request.form['to_user']
+
+        if str(task.urgency_id) != str(request.form['urgency']):
+            log_descr += "<dd>Изменил приоритет на: "+Urgency.query.get(request.form['urgency']).name+"</dd>"
         task.urgency_id = request.form['urgency']
+
+        if str(task.date_finish) != str(datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')):
+            log_descr += "<dd>Изменил время на: "+str(datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M'))+"</dd>"
         task.date_finish = datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')
+
+        if str(task.status_id) != str(request.form['status']):
+            log_descr += "<dd>Изменил статус на: " + Status.query.get(request.form['status']).name+"</dd>"
         task.status_id = request.form['status']
+
+        print(log_descr)
+        if log_descr != str("<dt>"+current_user.fio+"</dt>"):
+            log_descr += " ("+datetime.now().strftime('%Y-%m-%d %H:%M')+")"
+            user = current_user.id
+            log = Log(task_id=id, user_id=user, description=log_descr)
+            db.session.add(log)
+            db.session.commit()
+
         try:
             db.session.commit()
             return redirect('/tasks')
@@ -262,23 +319,34 @@ def taskadd():
             date_finish = datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')
         except:
             date_finish = datetime.now()
-        print(user, direction, type, description, to_user, urgency, date_finish)
         task = Task(user_id=user, direction_id=direction, type_id=type, title=title, description=description, to_user_id=to_user,
                     urgency_id=urgency, date_start=date_start, date_finish=date_finish)
 
-        try:
-            db.session.add(task)
-            db.session.commit()
-            return redirect('/')
-        except:
-            print()
-            return "При добавлении задачи произошла ошибка"
+
+
+        db.session.add(task)
+        db.session.commit()
+        task_id = Task.query.order_by(Task.id.desc()).first().id
+        if to_user!="0":
+            log_descr ="<dt>"+ current_user.fio +"</dt>"+ "<dd> Cоздал задачу и назначил на: " + User.query.get(to_user).fio+"</dd>"
+        else:
+            log_descr = "<dt>" + current_user.fio + "</dt>" + "<dd> Cоздал задачу"
+        log_descr += " (" + datetime.now().strftime('%Y-%m-%d %H:%M') + ")"
+        print(log_descr)
+        log = Log(task_id=task_id, user_id=user, description=log_descr)
+        db.session.add(log)
+        db.session.commit()
+        print(task_id)
+        return redirect('/')
+
+        print()
+        return "При добавлении задачи произошла ошибка"
     else:
 
         name = current_user.fio
         directions = Direction.query.order_by(Direction.id).all()
         types = Type.query.order_by(Type.id).all()
-        users = User.query.order_by(User.id).all()
+        users = User.query.order_by(User.id).filter(User.id!='1')
         urgency = Urgency.query.order_by(Urgency.id).all()
         return render_template("task_add.html", name=name, directions=directions, types=types, users=users, urgency=urgency)
 
@@ -307,7 +375,24 @@ def storagescripts_open():
 @app.route('/statistics')
 @login_required
 def statistics():
-    return render_template("statistics.html")
+    # res = Task.query.group_by(Task.user_id).all()
+    #res = Task.query.join(User, User.id == Task.user_id).group_by(User.id).all()
+    user = User.query.with_entities(User.id, User.fio)\
+        .filter((User.id != 1))\
+        .order_by(User.id)\
+        .all()
+    tasks = Task.query.with_entities(Task.user_id, func.count(Task.user_id)) \
+        .group_by(Task.user_id) \
+        .order_by(Task.user_id).all()
+
+    tasks = Task.query.with_entities(Task.to_user_id, func.count(Task.to_user_id)) \
+        .group_by(Task.to_user_id) \
+        .order_by(Task.to_user_id).all()
+    print(user)
+    print(tasks)
+
+
+    return render_template("statistics.html", res=tasks, user=user)
 
 
 @app.route('/about')
@@ -320,7 +405,8 @@ def about():
 @login_required
 def user(login,id):
     user = User.query.get(id)
-    return render_template("user_home.html", user=user)
+    tasks = Task.query.filter((Task.user_id == user.id)|(Task.to_user_id == user.id)).order_by(Task.date_start.desc()).all()
+    return render_template("user_home.html", user=user, tasks=tasks)
 
 
 @app.route('/admin_panel', methods=['POST', 'GET'])
