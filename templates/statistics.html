@@ -19,9 +19,9 @@
             <th scope="col" class="">Выполнено</th>
     </thead>
     <tbody>
-        {% for el in user, res %}
+        {% for el in res %}
             <tr>
-                <td>{{el[0]}}</td>
+                <td>{{el.User.fio}}</td>
                 <td>{{el[1]}}</td>
                 <td>{{el[2]}}</td>
             </tr>

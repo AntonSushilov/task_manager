@@ -1,73 +1,184 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Главная страница
+Список задач
 {% endblock %}
 
 {% block body %}
 <div class="container">
     <h1>Список доступных задач</h1>
-    <div >
-        <h3 class="filter-title">Фильтры:</h3>
-        <div class="d-flex align-items-center justify-content-between">
-            <input class="find form-control" type="text" id="myInputId" onkeyup="searchId()" placeholder="Поиск по ID..">
-            <input class="find form-control" type="text" id="myInputName" onkeyup="searchName()" placeholder="Поиск по Инициатору..">
-            <input class="find form-control" type="text" id="myInputTitle" onkeyup="searchTitle()" placeholder="Поиск по Названию задачи..">
-            <input class="find form-control" type="text" id="myInputNameTo" onkeyup="searchNameTo()" placeholder="Поиск по Исполнителю..">
-            <input class="find form-control" type="text" id="myInputUrgency" onkeyup="searchUrgency()" placeholder="Поиск по Срочности..">
-            <button id="export" class="btn btn-success">Export to excel</button>
-        </div>
-    </div>
 </div>
 
 <div class="tasks-table">
-    <table class="table table-striped table-hover table-bordered" id="myTable">
-    <thead>
-            <th scope="col" class="td-10px">ID</th>
-            <th scope="col" class="td-90px">Действия</th>
-            <th scope="col" class="td-90px">Инициатор</th>
-            <th scope="col" class="td-90px">Направление</th>
-            <th scope="col" class="td-90px">Тип задачи</th>
-            <th scope="col">Название</th>
-            <th scope="col">Задание</th>
-            <th scope="col" class="td-90px">Исполнитель</th>
-            <th scope="col" class="td-90px">Приоритет</th>
-            <th scope="col" class="td-time">Дата создания</th>
-            <th scope="col" class="td-time">Срок исполнения</th>
-            <th scope="col" class="td-90px">Статус</th>
-    </thead>
-    <tbody>
-        {% for el in tasks %}
+        <script type="text/javascript">
+	$(document).ready(function()
+	{
+// Setup - add a text input to each footer cell
+    $('#example tfoot td').each( function () {
+        var title = $(this).text();
+        $(this).html( '<input type="text" placeholder="'+title+'" />' );
+    } );
+
+
+	    $('#example').DataTable(
+	    { initComplete: function () {
+
+
+            this.api().columns([2, 3, 7, 10]).every( function () {
+                var column = this;
+                var select = $('<select><option value="">Все</option></select>')
+                    .appendTo( $(column.footer()).empty() )
+                    .on( 'change', function () {
+                        var val = $.fn.dataTable.util.escapeRegex(
+                            $(this).val()
+                        );
+
+                        column
+                            .search( val ? '^'+val+'$' : '', true, false )
+                            .draw();
+                    } );
+
+                column.data().unique().sort().each( function ( d, j ) {
+                    select.append( '<option value="'+d+'">'+d+'</option>' )
+                } );
+            } );
+
+
+            // Apply the search
+            this.api().columns().every( function () {
+                var that = this;
+
+                $( 'input', this.footer() ).on( 'keyup change clear', function () {
+                    if ( that.search() !== this.value ) {
+                        that
+                            .search( this.value )
+                            .draw();
+                    }
+                } );
+            } );
+        },
+            dom: 'Bfrtip',
+            lengthMenu: [
+            [ 10, 25, 50, -1 ],
+            [ '10', '25', '50', 'Показать все' ]
+            ],
+            buttons: [
+                  'excel', 'pageLength'
+            ],
+
+            "language":{
+    "processing": "Подождите...",
+    "search": "Поиск:",
+    "lengthMenu": "Показать _MENU_ записей",
+    "info": "Записи с _START_ до _END_ из _TOTAL_ записей",
+    "infoEmpty": "Записи с 0 до 0 из 0 записей",
+    "infoFiltered": "(отфильтровано из _MAX_ записей)",
+    "loadingRecords": "Загрузка записей...",
+    "zeroRecords": "Записи отсутствуют.",
+    "emptyTable": "В таблице отсутствуют данные",
+    "paginate": {
+        "first": "Первая",
+        "previous": "Предыдущая",
+        "next": "Следующая",
+        "last": "Последняя"
+    },
+    "aria": {
+        "sortAscending": ": активировать для сортировки столбца по возрастанию",
+        "sortDescending": ": активировать для сортировки столбца по убыванию"
+    },
+    "buttons": {
+        "pageLength": {
+            "_": "Показать 10 строк",
+            "25": "Показать 25 строк",
+            "50": "Показать 50 строк",
+            "-1": "Показать все ряды"
+        },
+        "collection": "Коллекция <span class=\"ui-button-icon-primary ui-icon ui-icon-triangle-1-s\"><\/span>",
+        "colvis": "Видимость столбцов",
+        "colvisRestore": "Восстановить видимость",
+        "excel": "Экспортировать в Excel"
+    }
+
+
+}
+
+
+	    } );
+$('#example tfoot tr').appendTo('#example .filters');
+	} );
+	</script>
+
+
+    <table class="table table-striped table-hover table-bordered " id="example">
+        <thead>
             <tr>
-                <td>{{ el.id }}</td>
-                <td>
-                    <a href="/tasks/{{ el.id }}" class="btn btn-primary">Детальнее</a>
-                </td>
-                <td>{{ el.user.fio }}</td>
-                <td>{{ el.direction.name }}</td>
-                <td>{{ el.type.name }}</td>
-                <td>{{ el.title }}</td>
-                <td>
-                    <div class="tasks-discription">{{ el.description|safe }}</div>
-                </td>
-                <td>{{ el.to_user.fio }}</td>
-                <td {% if el.urgency.name=="Низкий" %}
-                    style="background-color:MediumSeaGreen;"
-                    {% elif el.urgency.name=="Средний" %}
-                    style="background-color:Orange;"
-                    {% elif el.urgency.name=="Высокий" %}
-                    style="background-color:Tomato;"
-                    {% endif%}>
-                    {{ el.urgency.name }}
-                </td>
-                <td>{{ el.date_start.strftime('%Y-%m-%d %H:%M') }}</td>
-                <td>{{ el.date_finish.strftime('%Y-%m-%d %H:%M') }}</td>
-                <td>{{ el.status.name }}</td>
+                <th scope="col" class="">ID</th>
+                <th scope="col" class="">Инициатор</th>
+                <th scope="col" class="">Направление</th>
+                <th scope="col" class="">Тип задачи</th>
+                <th scope="col" class="">Название</th>
+                <th scope="col" class="">Задание</th>
+                <th scope="col" class="">Исполнитель</th>
+                <th scope="col" class="">Приоритет</th>
+                <th scope="col" class="td-time">Дата создания</th>
+                <th scope="col" class="td-time">Срок исполнения</th>
+                <th scope="col" class="">Статус</th>
+                <th scope="col" class="">Оценка</th>
             </tr>
-        {% endfor %}
+        </thead>
+        <thead class="filters">
 
+        </thead>
+        <tbody>
+            {% for el in tasks %}
+                <tr ondblclick="window.location='/tasks/{{ el.id }}'">
 
-    </tbody>
+                    <td>{{ el.id }}</td>
+    <!--                <td class="td">-->
+    <!--                    <a href="/tasks/{{ el.id }}" class="btn btn-primary">Детальнее</a>-->
+    <!--                </td>-->
+                    <td>{{ el.user.fio }}</td>
+                    <td >{{ el.direction.name }}</td>
+                    <td >{{ el.type.name }}</td>
+                    <td>
+                        <div class="tasks-title">{{ el.title }}</div>
+                    </td>
+                    <td >
+                        <div class="tasks-discription">{{ el.description|safe }}</div>
+                    </td>
+                    <td >{{ el.to_user.fio }}</td>
+                    <td {% if el.urgency.name=="Низкий" %}
+                        style="background-color:MediumSeaGreen;"
+                        {% elif el.urgency.name=="Средний" %}
+                        style="background-color:Orange;"
+                        {% elif el.urgency.name=="Высокий" %}
+                        style="background-color:Tomato;"
+                        {% endif%}>
+                        {{ el.urgency.name }}
+                    </td>
+                    <td>{{ el.date_start.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ el.date_finish.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ el.status.name }}</td>
+                    <td>{{ el.rating }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>ID</td>
+                <td>Инициатор</td>
+                <td>Направление</td>
+                <td>Тип задачи</td>
+                <td>Название</td>
+                <td>Задание</td>
+                <td>Исполнитель</td>
+                <td>Приоритет</td>
+                <td>Дата создания</td>
+                <td>Срок исполнения</td>
+                <td>Статус</td>
+                <td>Оценка</td>
+            </tr>
+        </tfoot>
 </table>
 </div>
 
@@ -83,7 +194,7 @@
       tr = table.getElementsByTagName("tr");
       // Loop through all table rows, and hide those who don't match the search query
       for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("td")[0];
+        td = tr[i].getElementsByClassName("td")[0];
         if (td) {
           if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
             tr[i].style.display = "";
@@ -102,9 +213,35 @@
         tr = table.getElementsByTagName("tr");
         // Loop through all table rows, and hide those who don't match the search query
         for (i = 0; i < tr.length; i++) {
-          td = tr[i].getElementsByTagName("td")[2];
+          td = tr[i].getElementsByClassName("td")[2];
           if (td) {
             if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+              tr[i].style.display = "";
+            } else {
+              tr[i].style.display = "none";
+            }
+          }
+        }
+      }
+      function searchDirection() {
+        // Declare variables
+        var input, filter, table, tr, td, i;
+        input = document.getElementById("myInputDirection");
+        console.log(input)
+        filter = input.value;
+        console.log(filter)
+
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+          td = tr[i].getElementsByClassName("td")[3];
+
+          if (td) {
+              if(filter == "Все"){
+                tr[i].style.display = "";
+              }
+            else if (td.innerHTML.indexOf(filter) > -1) {
               tr[i].style.display = "";
             } else {
               tr[i].style.display = "none";
@@ -121,7 +258,7 @@
         tr = table.getElementsByTagName("tr");
         // Loop through all table rows, and hide those who don't match the search query
         for (i = 0; i < tr.length; i++) {
-          td = tr[i].getElementsByTagName("td")[5];
+          td = tr[i].getElementsByClassName("td")[5];
           if (td) {
             if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
               tr[i].style.display = "";
@@ -140,7 +277,7 @@
         tr = table.getElementsByTagName("tr");
         // Loop through all table rows, and hide those who don't match the search query
         for (i = 0; i < tr.length; i++) {
-          td = tr[i].getElementsByTagName("td")[7];
+          td = tr[i].getElementsByClassName("td")[7];
           if (td) {
             if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
               tr[i].style.display = "";
@@ -159,7 +296,7 @@
         tr = table.getElementsByTagName("tr");
         // Loop through all table rows, and hide those who don't match the search query
         for (i = 0; i < tr.length; i++) {
-          td = tr[i].getElementsByTagName("td")[8];
+          td = tr[i].getElementsByClassName("td")[8];
           if (td) {
             if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
               tr[i].style.display = "";
@@ -170,11 +307,5 @@
         }
     }
 </script>
-<script>
-      var table2excel = new Table2Excel();
 
-      document.getElementById('export').addEventListener('click', function() {
-        table2excel.export(document.querySelectorAll('table'));
-      });
-    </script>
 {% endblock %}

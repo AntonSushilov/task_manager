@@ -205,7 +205,8 @@ def register():
 @app.route('/tasks')
 def index():
     tasks = Task.query.order_by(Task.date_start.desc()).all()
-    return render_template("tasks.html", tasks=tasks)
+    directions = Direction.query.order_by(Direction.id).all()
+    return render_template("tasks.html", tasks=tasks, directions=directions)
 
 
 @app.route('/tasks/<int:id>')
@@ -271,7 +272,11 @@ def tasks_update_task(id):
         if str(task.status_id) != str(request.form['status']):
             log_descr += "<dd>Изменил статус на: " + Status.query.get(request.form['status']).name + "</dd>"
         task.status_id = request.form['status']
-
+        if request.form['rating']:
+            if str(task.rating) != str(request.form['rating']):
+                log_descr += "<dd>Изменил оценку на: " + request.form['rating'] + "</dd>"
+            task.rating = request.form['rating']
+        print(request.form['rating'])
         print(log_descr)
         if log_descr != str("<dt>" + current_user.fio + "</dt>"):
             log_descr += " (" + datetime.now().strftime('%Y-%m-%d %H:%M') + ")"
@@ -370,26 +375,27 @@ def storagescripts_open():
 def statistics():
     # res = Task.query.group_by(Task.user_id).all()
     # res = Task.query.join(User, User.id == Task.user_id).group_by(User.id).all()
-    user = User.query.with_entities(User.id, User.fio) \
-        .filter((User.id != 1)) \
-        .order_by(User.id) \
-        .all()
+    # user = User.query.with_entities(User.id, User.fio) \
+    #     .filter((User.id != 1)) \
+    #     .order_by(User.id) \
+    #     .all()
+    #
+    # tasks = Task.query \
+    #     .with_entities(Task.user_id, func.count(Task.user_id)) \
+    #     .group_by(Task.user_id) \
+    #     .order_by(Task.user_id) \
+    #     .all()
+    #
+    # tasks = Task.query \
+    #     .with_entities(Task.to_user_id, func.count(Task.to_user_id)) \
+    #     .group_by(Task.to_user_id) \
+    #     .order_by(Task.to_user_id) \
+    #     .all()
 
-    tasks = Task.query \
-        .with_entities(Task.user_id, func.count(Task.user_id)) \
-        .group_by(Task.user_id) \
-        .order_by(Task.user_id) \
-        .all()
-
-    tasks = Task.query \
-        .with_entities(Task.to_user_id, func.count(Task.to_user_id)) \
-        .group_by(Task.to_user_id) \
-        .order_by(Task.to_user_id) \
-        .all()
-    print(user)
+    tasks = db.session.query(User, func.count(Task.user), func.count(Task.to_user)).outerjoin(Task, User.id == Task.user_id).group_by(User.id).all()
     print(tasks)
 
-    return render_template("statistics.html", res=tasks, user=user)
+    return render_template("statistics.html", res=tasks)
 
 
 @app.route('/about')

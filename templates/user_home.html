@@ -21,37 +21,53 @@
     <div class="tab-pane fade show active" id="tasks" role="tabpanel" aria-labelledby="home-tab">
 
 
-        <table class="table table-striped table-hover table-bordered" id="myTable">
+        <script type="text/javascript">
+	$(document).ready(function()
+	{
+	    $('#example').DataTable(
+	    {
+	        dom: 'Blfrtip',
+	    } );
+
+	} );
+	</script>
+
+
+    <table class="table table-striped table-hover table-bordered " id="example">
     <thead>
-            <th scope="col" class="td-10px">ID</th>
-            <th scope="col" class="td-90px">Действия</th>
-            <th scope="col" class="td-90px">Инициатор</th>
-            <th scope="col" class="td-90px">Направление</th>
-            <th scope="col" class="td-90px">Тип задачи</th>
-            <th scope="col">Название</th>
-            <th scope="col">Задание</th>
-            <th scope="col" class="td-90px">Исполнитель</th>
-            <th scope="col" class="td-90px">Приоритет</th>
-            <th scope="col" class="td-time">Дата создания</th>
-            <th scope="col" class="td-time">Срок исполнения</th>
-            <th scope="col" class="td-90px">Статус</th>
+        <th scope="col" class="td-30px">ID</th>
+<!--        <th scope="col" class="td-90px">Действия</th>-->
+        <th scope="col" class="td-90px">Инициатор</th>
+        <th scope="col" class="td-90px">Направление</th>
+        <th scope="col" class="td-90px">Тип задачи</th>
+        <th scope="col">Название</th>
+        <th scope="col">Задание</th>
+        <th scope="col" class="td-90px">Исполнитель</th>
+        <th scope="col" class="td-90px">Приоритет</th>
+        <th scope="col" class="td-time">Дата создания</th>
+        <th scope="col" class="td-time">Срок исполнения</th>
+        <th scope="col" class="td-90px">Статус</th>
+        <th scope="col" class="td-90px">Оценка</th>
     </thead>
     <tbody>
         {% for el in tasks %}
-            <tr>
-                <td scope="row">{{ el.id }}</td>
-                <td>
-                    <a href="/tasks/{{ el.id }}" class="btn btn-primary">Детальнее</a>
+            <tr ondblclick="window.location='/tasks/{{ el.id }}'">
+
+                <td class="td">{{ el.id }}</td>
+<!--                <td class="td">-->
+<!--                    <a href="/tasks/{{ el.id }}" class="btn btn-primary">Детальнее</a>-->
+<!--                </td>-->
+                <td class="td">{{ el.user.fio }}</td>
+                <td class="td">{{ el.direction.name }}</td>
+                <td class="td">{{ el.type.name }}</td>
+                <td class="td">
+                    <div class="tasks-title">{{ el.title }}</div>
                 </td>
-                <td>{{ el.user.fio }}</td>
-                <td>{{ el.direction.name }}</td>
-                <td>{{ el.type.name }}</td>
-                <td>{{ el.title }}</td>
-                <td>
+                <td class="td">
                     <div class="tasks-discription">{{ el.description|safe }}</div>
                 </td>
-                <td>{{ el.to_user.fio }}</td>
-                <td {% if el.urgency.name=="Низкий" %}
+                <td class="td">{{ el.to_user.fio }}</td>
+                <td class="td" {% if el.urgency.name=="Низкий" %}
                     style="background-color:MediumSeaGreen;"
                     {% elif el.urgency.name=="Средний" %}
                     style="background-color:Orange;"
@@ -60,9 +76,10 @@
                     {% endif%}>
                     {{ el.urgency.name }}
                 </td>
-                <td>{{ el.date_start.strftime('%Y-%m-%d %H:%M') }}</td>
-                <td>{{ el.date_finish.strftime('%Y-%m-%d %H:%M') }}</td>
-                <td>{{ el.status.name }}</td>
+                <td class="td">{{ el.date_start.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td class="td">{{ el.date_finish.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td class="td">{{ el.status.name }}</td>
+                <td class="td">{{ el.rating }}</td>
             </tr>
         {% endfor %}
 
