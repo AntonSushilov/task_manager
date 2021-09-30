@@ -6,7 +6,7 @@
 
 {% block body %}
 
-<div class="text-center">
+<div class="">
    <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
         <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#tasks" type="button" role="tab" aria-controls="tasks" aria-selected="true">Мои задачи</button>
@@ -196,7 +196,7 @@ $('#example tfoot tr').appendTo('#example .filters');
 
     </div>
     <div class="tab-pane fade show" id="profile" role="tabpanel" aria-labelledby="home-tab">
-         <form class="authorization-form" action="/user/{{ user.id }}/user_update" method="post">
+         <form class="authorization-form text-center" action="/user/{{ user.id }}/user_update" method="post">
             <h1 class="h3 mb-3 fw-normal">Изменение пользователя</h1>
                 {% with messages = get_flashed_messages() %}
               {% if messages %}

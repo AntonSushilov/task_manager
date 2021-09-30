@@ -392,10 +392,32 @@ def statistics():
     #     .order_by(Task.to_user_id) \
     #     .all()
 
-    tasks = db.session.query(User, func.count(Task.user), func.count(Task.to_user)).outerjoin(Task, User.id == Task.user_id).group_by(User.id).all()
-    print(tasks)
+    create = db.session.query(User.fio, func.count(Task.user))\
+        .outerjoin(Task, User.id == Task.user_id)\
+        .group_by(User.id)\
+        .order_by(User.fio)\
+        .all()
 
-    return render_template("statistics.html", res=tasks)
+    set = db.session.query(User.fio, func.count(Task.to_user))\
+        .outerjoin(Task, User.id == Task.to_user_id)\
+        .group_by(User.id)\
+        .order_by(User.fio)\
+        .all()
+
+    inwork = db.session.query(User.fio, func.count(Task.status_id).filter(Task.status_id=='2'))\
+        .outerjoin(Task, User.id==Task.to_user_id)\
+        .group_by(User.fio) \
+        .order_by(User.fio) \
+        .all()
+
+    done = db.session.query(User.fio, func.count(Task.status_id).filter(Task.status_id == '3')) \
+        .outerjoin(Task, User.id == Task.to_user_id) \
+        .group_by(User.fio) \
+        .order_by(User.fio) \
+        .all()
+    print(inwork)
+
+    return render_template("statistics.html", create=create, set=set, inwork=inwork, done=done)
 
 
 @app.route('/about')

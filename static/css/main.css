@@ -126,3 +126,17 @@ table{
 td select{
     height: 30px;
 }
+
+.statistic-table{
+    width: 700px;
+}
+.tab-content{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.statistic-table .dt-buttons{
+    margin-left: 0;
+}
+.statistic-table .dataTables_filter{
+    margin-right: 0;
+}
