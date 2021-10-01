@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, flash, url_for
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user, \
     AnonymousUserMixin
@@ -7,6 +7,9 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_ckeditor import CKEditor
+
+
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///task_manager.db'
@@ -99,8 +102,17 @@ class Task(db.Model):
     urgency_id = db.Column(db.Integer, db.ForeignKey('urgency.id'), nullable=False)
     urgency = db.relationship('Urgency', foreign_keys=[urgency_id])
 
-    date_start = db.Column(db.DateTime(), default=datetime.now())
-    date_finish = db.Column(db.DateTime(), default=datetime.now())
+
+
+    datetimeutc = datetime.utcnow()
+    datetimenow = datetimeutc + timedelta(hours=3)
+    strdatetime = datetimenow.strftime('%Y-%m-%d %H:%M')
+    datetimenow = datetime.strptime(strdatetime, '%Y-%m-%d %H:%M')
+
+    date_start = db.Column(db.DateTime(), default=datetimenow)
+    date_finish = db.Column(db.DateTime(), default=datetimenow)
+
+
 
     status_id = db.Column(db.Integer, db.ForeignKey('status.id'), nullable=False, default='1')
     status = db.relationship('Status', foreign_keys=[status_id])
@@ -229,7 +241,6 @@ def task_detail(id):
 def tasks_del_task(id):
     task = Task.query.get_or_404(id)
     logs = Log.query.filter_by(task_id=id).all()
-    print(logs)
 
     try:
         db.session.delete(task)
@@ -245,7 +256,6 @@ def tasks_del_task(id):
 @login_required
 def tasks_update_task(id):
     task = Task.query.get(id)
-    print(id)
     if request.method == "POST":
         log_descr = "<dt>" + current_user.fio + "</dt>"
         task.direction_id = request.form['direction']
@@ -264,6 +274,9 @@ def tasks_update_task(id):
             log_descr += "<dd>Изменил приоритет на: " + Urgency.query.get(request.form['urgency']).name + "</dd>"
         task.urgency_id = request.form['urgency']
 
+
+
+
         if str(task.date_finish) != str(datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')):
             log_descr += "<dd>Изменил время на: " + str(
                 datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')) + "</dd>"
@@ -276,8 +289,6 @@ def tasks_update_task(id):
             if str(task.rating) != str(request.form['rating']):
                 log_descr += "<dd>Изменил оценку на: " + request.form['rating'] + "</dd>"
             task.rating = request.form['rating']
-        print(request.form['rating'])
-        print(log_descr)
         if log_descr != str("<dt>" + current_user.fio + "</dt>"):
             log_descr += " (" + datetime.now().strftime('%Y-%m-%d %H:%M') + ")"
             user = current_user.id
@@ -312,14 +323,18 @@ def taskadd():
         description = request.form['description']
         to_user = request.form['to_user']
         urgency = request.form['urgency']
-        date_start = datetime.now()
+
         try:
             date_finish = datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')
         except:
-            date_finish = datetime.now()
+            datetimeutc = datetime.utcnow()
+            datetimenow = datetimeutc + timedelta(hours=3)
+            strdatetime = datetimenow.strftime('%Y-%m-%d %H:%M')
+            date_finish = datetime.strptime(strdatetime, '%Y-%m-%d %H:%M')
+
         task = Task(user_id=user, direction_id=direction, type_id=type, title=title, description=description,
                     to_user_id=to_user,
-                    urgency_id=urgency, date_start=date_start, date_finish=date_finish)
+                    urgency_id=urgency, date_finish=date_finish)
 
         db.session.add(task)
         db.session.commit()
@@ -329,16 +344,11 @@ def taskadd():
                 to_user).fio + "</dd>"
         else:
             log_descr = "<dt>" + current_user.fio + "</dt>" + "<dd> Cоздал задачу"
-        log_descr += " (" + datetime.now().strftime('%Y-%m-%d %H:%M') + ")"
-        print(log_descr)
+        log_descr += " (" + str(task.date_finish) + ")"
         log = Log(task_id=task_id, user_id=user, description=log_descr)
         db.session.add(log)
         db.session.commit()
-        print(task_id)
         return redirect('/')
-
-        print()
-        return "При добавлении задачи произошла ошибка"
     else:
 
         name = current_user.fio
@@ -415,7 +425,6 @@ def statistics():
         .group_by(User.fio) \
         .order_by(User.fio) \
         .all()
-    print(inwork)
 
     return render_template("statistics.html", create=create, set=set, inwork=inwork, done=done)
 
@@ -465,13 +474,13 @@ def home_update_user(id):
         if password and (password == password2):
             hash_pwd = generate_password_hash(password)
             user.password = hash_pwd
-            print("Пароль изменен")
+            flash("Пароль изменен")
         elif password or password2 and (password != password2):
             flash("Пароли не совпадают")
             return redirect(url_for('user', login=user.login, id=user.id))
 
         else:
-            print("Пароль не изменен")
+            flash("Пароль не изменен")
 
         user.fio = fio
         try:
@@ -482,7 +491,6 @@ def home_update_user(id):
     else:
         return redirect("/admin_panel")
 
-    print("current_user.role.name")
     return redirect("/tasks")
 
 
@@ -502,9 +510,9 @@ def admin_update_user(id):
             if password and (password == password2):
                 hash_pwd = generate_password_hash(password)
                 user.password = hash_pwd
-                print("Пароль изменен")
+                flash("Пароль изменен")
             else:
-                print("Пароль не изменен")
+                flash("Пароль не изменен")
 
             user.login = login
             user.fio = fio
@@ -518,7 +526,6 @@ def admin_update_user(id):
 
             return redirect("/admin_panel")
     else:
-        print("current_user.role.name")
         return redirect("/tasks")
 
 
