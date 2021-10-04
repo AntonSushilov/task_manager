@@ -218,7 +218,16 @@ def register():
 def index():
     tasks = Task.query.order_by(Task.date_start.desc()).all()
     directions = Direction.query.order_by(Direction.id).all()
-    return render_template("tasks.html", tasks=tasks, directions=directions)
+    logs = Log.query.all()
+    print(logs)
+    name = current_user.fio
+    directions = Direction.query.order_by(Direction.id).all()
+    types = Type.query.order_by(Type.id).all()
+    users = User.query.order_by(User.id).filter(User.id != '1')
+    urgency = Urgency.query.order_by(Urgency.id).all()
+    status = Status.query.order_by(Status.id).all()
+    return render_template("tasks.html", tasks=tasks,  name=name, directions=directions, types=types, users=users,
+                           urgency=urgency, status=status, logs=logs)
 
 
 @app.route('/tasks/<int:id>')
@@ -383,25 +392,6 @@ def storagescripts_open():
 @app.route('/statistics')
 @login_required
 def statistics():
-    # res = Task.query.group_by(Task.user_id).all()
-    # res = Task.query.join(User, User.id == Task.user_id).group_by(User.id).all()
-    # user = User.query.with_entities(User.id, User.fio) \
-    #     .filter((User.id != 1)) \
-    #     .order_by(User.id) \
-    #     .all()
-    #
-    # tasks = Task.query \
-    #     .with_entities(Task.user_id, func.count(Task.user_id)) \
-    #     .group_by(Task.user_id) \
-    #     .order_by(Task.user_id) \
-    #     .all()
-    #
-    # tasks = Task.query \
-    #     .with_entities(Task.to_user_id, func.count(Task.to_user_id)) \
-    #     .group_by(Task.to_user_id) \
-    #     .order_by(Task.to_user_id) \
-    #     .all()
-
     create = db.session.query(User.fio, func.count(Task.user))\
         .outerjoin(Task, User.id == Task.user_id)\
         .group_by(User.id)\
@@ -429,10 +419,10 @@ def statistics():
     return render_template("statistics.html", create=create, set=set, inwork=inwork, done=done)
 
 
-@app.route('/about')
+@app.route('/test')
 @login_required
 def about():
-    return render_template("about.html")
+    return render_template("test.html")
 
 
 @app.route('/user/<string:login>/<int:id>')

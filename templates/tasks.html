@@ -131,8 +131,22 @@ $('#example tfoot tr').appendTo('#example .filters');
         </thead>
         <tbody>
             {% for el in tasks %}
-                <tr ondblclick="window.location='/tasks/{{ el.id }}'">
-
+<!--                <tr class="tr-click" ondblclick="window.location='/tasks/{{ el.id }}'">-->
+                <tr class="tr-click" data-bs-toggle="modal"
+                    data-bs-target="#exampleModal"
+                    data-bs-id="{{ el.id }}"
+                    data-bs-fio="{{ el.user.fio }}"
+                    data-bs-direction="{{ el.direction.id }}"
+                    data-bs-type="{{ el.type.id }}"
+                    data-bs-title="{{ el.title }}"
+                    data-bs-description="{{ el.description }}"
+                    data-bs-to-user="{{ el.to_user.id }}"
+                    data-bs-urgency="{{ el.urgency.id }}"
+                    data-bs-start="{{ el.date_start.strftime('%Y-%m-%dT%H:%M') }}"
+                    data-bs-finish="{{ el.date_finish.strftime('%Y-%m-%dT%H:%M') }}"
+                    data-bs-status="{{ el.status.id }}"
+                    data-bs-rating="{{ el.rating}}"
+                >
                     <td>{{ el.id }}</td>
     <!--                <td class="td">-->
     <!--                    <a href="/tasks/{{ el.id }}" class="btn btn-primary">Детальнее</a>-->
@@ -160,6 +174,7 @@ $('#example tfoot tr').appendTo('#example .filters');
                     <td>{{ el.date_finish.strftime('%Y-%m-%d %H:%M') }}</td>
                     <td>{{ el.status.name }}</td>
                     <td>{{ el.rating }}</td>
+
                 </tr>
             {% endfor %}
         </tbody>
@@ -182,130 +197,174 @@ $('#example tfoot tr').appendTo('#example .filters');
 </table>
 </div>
 
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+  Launch demo modal
+</button>
+
+<!-- Modal -->
+{{ ckeditor.load() }}
+<div class="modal fade" id="exampleModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="task-form" action="" method="post">
+          <div class="mb-3">
+                <label class="form-label">ID</label>
+                <input  class="form-control" type="text" id="task_id" name="task_id" placeholder="ID" disabled>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Инициатор</label>
+                <input  class="form-control" type="text" id="user" name="user" placeholder="Пользователь" disabled value="{{ 1 }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Направление</label>
+                <select class="form-select" aria-label="Default select example" id="direction" name="direction">
+                    {% for el in directions %}
+                    <option value="{{ el.id }}">{{ el.name }} </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Тип задачи</label>
+                <select class="form-select" aria-label="Default select example" id="type" name="type">
+                    {% for el in types %}
+                    <option value="{{ el.id }}">{{ el.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+             <div class="mb-3">
+                <label class="form-label">Название задачи</label>
+                <textarea class="form-control" name="title" id="title" cols="30" rows="1" placeholder="Название"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Описание задачи</label>
+                {{ ckeditor.create(name='description' ) }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Кому назначить задачу</label>
+                <select class="form-select" aria-label="Default select example" id="to_user" name="to_user">
+                    <option value="0"></option>
+                    {% for el in users %}
+                    <option value="{{ el.id }}" {% if el.id == 1 %}selected{% endif %}>{{ el.fio }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Приоритет</label>
+                <select class="form-select" aria-label="Default select example" id="urgency" name="urgency">
+                    {% for el in urgency %}
+                        <option value="{{ el.id }}" {% if el.id==1 %}
+                        style="background-color:MediumSeaGreen;"
+                        {% elif el.id==2 %}
+                        style="background-color:Orange;"
+                        {% elif el.id==3 %}
+                        style="background-color:Tomato;"
+                        {% endif%} >{{ el.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Дата и время начала задачи</label>
+                <input class="form-control" type="datetime-local" id="date_start" name="date_start" disabled>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Дата и время завершения задачи</label>
+                <input class="form-control" type="datetime-local" id="date_finish" name="date_finish">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Статус задачи</label>
+                <select class="form-select" aria-label="Default select example" id="status" name="status">
+                    {% for el in status %}
+                    <option value="{{ el.id }}">{{ el.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+
+               <div class="mb-3">
+                    <label for="rating" class="form-label">Оценка</label>
+                    <input type="range" class="form-range" min="0" max="5" id="rating" name="rating">
+                </div>
+            <input type="submit" class="btn btn-success" id="add_type" name="add_type" value="Отправить изменения">
+            <a href="1" class="btn btn-danger">Удалить</a>
+            <a href="/tasks" class="btn btn-primary">Вернуться</a>
+        </form>
+          <label class="form-label">Логи задачи</label>
+        <div class="logs">
+            {% for el in logs %}
+                {{ el.description|safe }}
+             {% endfor %}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 <script>
-    function searchId() {
-      // Declare variables
-      var input, filter, table, tr, td, i;
-      input = document.getElementById("myInputId");
-      filter = input.value.toUpperCase();
-      table = document.getElementById("myTable");
-      tr = table.getElementsByTagName("tr");
-      // Loop through all table rows, and hide those who don't match the search query
-      for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByClassName("td")[0];
-        if (td) {
-          if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-            tr[i].style.display = "";
-          } else {
-            tr[i].style.display = "none";
-          }
-        }
-      }
-    }
-    function searchName() {
-        // Declare variables
-        var input, filter, table, tr, td, i;
-        input = document.getElementById("myInputName");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("myTable");
-        tr = table.getElementsByTagName("tr");
-        // Loop through all table rows, and hide those who don't match the search query
-        for (i = 0; i < tr.length; i++) {
-          td = tr[i].getElementsByClassName("td")[2];
-          if (td) {
-            if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-              tr[i].style.display = "";
-            } else {
-              tr[i].style.display = "none";
-            }
-          }
-        }
-      }
-      function searchDirection() {
-        // Declare variables
-        var input, filter, table, tr, td, i;
-        input = document.getElementById("myInputDirection");
-        console.log(input)
-        filter = input.value;
-        console.log(filter)
+    var exampleModal = document.getElementById('exampleModal')
+    exampleModal.addEventListener('show.bs.modal', function (event) {
+    // Button that triggered the modal
+    var button = event.relatedTarget;
+    // Extract info from data-bs-* attributes
+    var id = button.getAttribute('data-bs-id');
+    var user = button.getAttribute('data-bs-fio');
+    var direction = button.getAttribute('data-bs-direction');
+    var type = button.getAttribute('data-bs-type');
+    var title = button.getAttribute('data-bs-title');
+    var description = button.getAttribute('data-bs-description');
+    var to_user = button.getAttribute('data-bs-to-user');
+    var urgency = button.getAttribute('data-bs-urgency');
+    var start = button.getAttribute('data-bs-start');
+    var finish = button.getAttribute('data-bs-finish');
+    var status = button.getAttribute('data-bs-status');
+    var rating = button.getAttribute('data-bs-rating');
+    // If necessary, you could initiate an AJAX request here
+    // and then do the updating in a callback.
+    //
+    // Update the modal's content.
+    var modalTitle = exampleModal.querySelector('.modal-title');
+    var modal_id = exampleModal.querySelector('.modal-body #task_id');
+    var modal_user = exampleModal.querySelector('.modal-body #user');
+    var modal_direction = exampleModal.querySelector('.modal-body #direction');
+    var modal_type = exampleModal.querySelector('.modal-body #type');
+    var modal_title = exampleModal.querySelector('.modal-body #title');
+    var modal_to_user = exampleModal.querySelector('.modal-body #to_user');
+    var modal_urgency = exampleModal.querySelector('.modal-body #urgency');
+    var modal_start = exampleModal.querySelector('.modal-body #date_start');
+    var modal_finish = exampleModal.querySelector('.modal-body #date_finish');
+    var modal_status = exampleModal.querySelector('.modal-body #status');
+    var modal_rating = exampleModal.querySelector('.modal-body #rating');
 
-        table = document.getElementById("myTable");
-        tr = table.getElementsByTagName("tr");
-        // Loop through all table rows, and hide those who don't match the search query
-        for (i = 0; i < tr.length; i++) {
-          td = tr[i].getElementsByClassName("td")[3];
+    modalTitle.textContent = 'Редактирование задачи ' + user;
+    modal_id.value = id;
+    modal_user.value = user;
+    modal_direction.value = direction;
+    modal_type.value = type;
+    modal_title.value = title;
+    CKEDITOR.instances['description'].setData(description);
+    modal_to_user.value= to_user;
+    modal_urgency.value = urgency;
+    modal_start.value = start;
+    modal_finish.value = finish;
+    modal_status.value = status;
+    modal_rating.value = rating;
 
-          if (td) {
-              if(filter == "Все"){
-                tr[i].style.display = "";
-              }
-            else if (td.innerHTML.indexOf(filter) > -1) {
-              tr[i].style.display = "";
-            } else {
-              tr[i].style.display = "none";
-            }
-          }
-        }
-      }
-       function searchTitle() {
-        // Declare variables
-        var input, filter, table, tr, td, i;
-        input = document.getElementById("myInputTitle");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("myTable");
-        tr = table.getElementsByTagName("tr");
-        // Loop through all table rows, and hide those who don't match the search query
-        for (i = 0; i < tr.length; i++) {
-          td = tr[i].getElementsByClassName("td")[5];
-          if (td) {
-            if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-              tr[i].style.display = "";
-            } else {
-              tr[i].style.display = "none";
-            }
-          }
-        }
-      }
-    function searchNameTo() {
-        // Declare variables
-        var input, filter, table, tr, td, i;
-        input = document.getElementById("myInputNameTo");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("myTable");
-        tr = table.getElementsByTagName("tr");
-        // Loop through all table rows, and hide those who don't match the search query
-        for (i = 0; i < tr.length; i++) {
-          td = tr[i].getElementsByClassName("td")[7];
-          if (td) {
-            if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-              tr[i].style.display = "";
-            } else {
-              tr[i].style.display = "none";
-            }
-          }
-        }
-    }
-    function searchUrgency() {
-        // Declare variables
-        var input, filter, table, tr, td, i;
-        input = document.getElementById("myInputUrgency");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("myTable");
-        tr = table.getElementsByTagName("tr");
-        // Loop through all table rows, and hide those who don't match the search query
-        for (i = 0; i < tr.length; i++) {
-          td = tr[i].getElementsByClassName("td")[8];
-          if (td) {
-            if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-              tr[i].style.display = "";
-            } else {
-              tr[i].style.display = "none";
-            }
-          }
-        }
-    }
+    
+    console.log(logs)
+
+
+
+})
+
 </script>
 
 {% endblock %}
