@@ -297,7 +297,6 @@
                 </div>
                 <label class="form-label">Логи задачи</label>
                         <div class="logs" id="logs">
-                <!--            {{ logs[1].description|safe}}-->
                             {% for el in logs %}
                                 {% if el.task_id == 1%}
                                     {{ el.description|safe }}
