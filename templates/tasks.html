@@ -109,6 +109,9 @@ $('#example tfoot tr').appendTo('#example .filters');
 	</script>
 
 
+<!--<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">-->
+<!--  Launch demo modal-->
+<!--</button>-->
     <table class="table table-striped table-hover table-bordered " id="example">
         <thead>
             <tr>
@@ -146,6 +149,8 @@ $('#example tfoot tr').appendTo('#example .filters');
                     data-bs-finish="{{ el.date_finish.strftime('%Y-%m-%dT%H:%M') }}"
                     data-bs-status="{{ el.status.id }}"
                     data-bs-rating="{{ el.rating}}"
+                    data-bs-logs="{% for log in logs %}{% if log.task_id == el.id %}{{ log.description }}{% endif %}{% endfor %}"
+
                 >
                     <td>{{ el.id }}</td>
     <!--                <td class="td">-->
@@ -197,9 +202,6 @@ $('#example tfoot tr').appendTo('#example .filters');
 </table>
 </div>
 
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-  Launch demo modal
-</button>
 
 <!-- Modal -->
 {{ ckeditor.load() }}
@@ -211,14 +213,14 @@ $('#example tfoot tr').appendTo('#example .filters');
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form class="task-form" action="" method="post">
+        <form class="task-form" action="/tasks/edit" method="post">
           <div class="mb-3">
                 <label class="form-label">ID</label>
-                <input  class="form-control" type="text" id="task_id" name="task_id" placeholder="ID" disabled>
+                <input  class="form-control" type="text" id="task_id" name="task_id" placeholder="ID" readonly>
             </div>
             <div class="mb-3">
                 <label class="form-label">Инициатор</label>
-                <input  class="form-control" type="text" id="user" name="user" placeholder="Пользователь" disabled value="{{ 1 }}">
+                <input  class="form-control" type="text" id="user" name="user" placeholder="Пользователь" readonly>
             </div>
             <div class="mb-3">
                 <label class="form-label">Направление</label>
@@ -249,7 +251,7 @@ $('#example tfoot tr').appendTo('#example .filters');
                 <select class="form-select" aria-label="Default select example" id="to_user" name="to_user">
                     <option value="0"></option>
                     {% for el in users %}
-                    <option value="{{ el.id }}" {% if el.id == 1 %}selected{% endif %}>{{ el.fio }}</option>
+                    <option value="{{ el.id }}">{{ el.fio }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -289,20 +291,23 @@ $('#example tfoot tr').appendTo('#example .filters');
                     <label for="rating" class="form-label">Оценка</label>
                     <input type="range" class="form-range" min="0" max="5" id="rating" name="rating">
                 </div>
-            <input type="submit" class="btn btn-success" id="add_type" name="add_type" value="Отправить изменения">
-            <a href="1" class="btn btn-danger">Удалить</a>
-            <a href="/tasks" class="btn btn-primary">Вернуться</a>
+                <label class="form-label">Логи задачи</label>
+                        <div class="logs" id="logs">
+                <!--            {{ logs[1].description|safe}}-->
+                            {% for el in logs %}
+                                {% if el.task_id == 1%}
+                                    {{ el.description|safe }}
+                                {% endif %}
+                             {% endfor %}
+                        </div>
+            <input type="submit" class="btn btn-primary" data-bs-dismiss="modal" name="action" value="Отправить изменения">
+          <input type="submit" class="btn btn-danger" data-bs-dismiss="modal" name="action" value="Удалить">
+
         </form>
-          <label class="form-label">Логи задачи</label>
-        <div class="logs">
-            {% for el in logs %}
-                {{ el.description|safe }}
-             {% endfor %}
-        </div>
+
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
       </div>
     </div>
   </div>
@@ -327,6 +332,8 @@ $('#example tfoot tr').appendTo('#example .filters');
     var finish = button.getAttribute('data-bs-finish');
     var status = button.getAttribute('data-bs-status');
     var rating = button.getAttribute('data-bs-rating');
+    var logs = button.getAttribute('data-bs-logs');
+
     // If necessary, you could initiate an AJAX request here
     // and then do the updating in a callback.
     //
@@ -343,22 +350,27 @@ $('#example tfoot tr').appendTo('#example .filters');
     var modal_finish = exampleModal.querySelector('.modal-body #date_finish');
     var modal_status = exampleModal.querySelector('.modal-body #status');
     var modal_rating = exampleModal.querySelector('.modal-body #rating');
+    var modal_logs = exampleModal.querySelector('.modal-body #logs');
 
-    modalTitle.textContent = 'Редактирование задачи ' + user;
+    modalTitle.textContent = 'Редактирование задачи ';
     modal_id.value = id;
     modal_user.value = user;
     modal_direction.value = direction;
     modal_type.value = type;
     modal_title.value = title;
     CKEDITOR.instances['description'].setData(description);
-    modal_to_user.value= to_user;
+    if(to_user == ""){
+         modal_to_user.value = 0;
+    }
+    else{
+         modal_to_user.value= to_user;
+    }
     modal_urgency.value = urgency;
     modal_start.value = start;
     modal_finish.value = finish;
     modal_status.value = status;
     modal_rating.value = rating;
-
-    
+    modal_logs.innerHTML  = logs;
     console.log(logs)
 
 
