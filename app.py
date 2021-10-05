@@ -231,21 +231,6 @@ def index():
                            urgency=urgency, status=status, logs=logs)
 
 
-@app.route('/tasks/<int:id>')
-@login_required
-def task_detail(id):
-    task = Task.query.get(id)
-    logs = Log.query.filter_by(task_id=id)
-    name = current_user.fio
-    directions = Direction.query.order_by(Direction.id).all()
-    types = Type.query.order_by(Type.id).all()
-    users = User.query.order_by(User.id).filter(User.id != '1')
-    urgency = Urgency.query.order_by(Urgency.id).all()
-    status = Status.query.order_by(Status.id).all()
-    return render_template("task_detail.html", task=task, name=name, directions=directions, types=types, users=users,
-                           urgency=urgency, status=status, logs=logs)
-
-
 @app.route('/tasks/edit', methods=['POST', 'GET'])
 @login_required
 def tasks_edit_del():
@@ -318,82 +303,6 @@ def tasks_edit_del():
             urgency = Urgency.query.order_by(Urgency.id).all()
             return render_template("task_add.html", name=name, directions=directions, types=types, users=users,
                                    urgency=urgency)
-
-
-@app.route('/tasks/<int:id>/delete_task')
-@login_required
-def tasks_del_task(id):
-    task = Task.query.get_or_404(id)
-    logs = Log.query.filter_by(task_id=id).all()
-
-    try:
-        db.session.delete(task)
-        for i in logs:
-            db.session.delete(i)
-        db.session.commit()
-        return redirect("/tasks")
-    except:
-        return "При удалении произошла ошибка"
-
-
-@app.route('/tasks/<int:id>/update_task', methods=['POST', 'GET'])
-@login_required
-def tasks_update_task(id):
-    task = Task.query.get(id)
-    if request.method == "POST":
-        log_descr = "<dt>" + current_user.fio + "</dt>"
-        task.direction_id = request.form['direction']
-        task.type_id = request.form['type']
-        task.title = request.form['title']
-        task.description = request.form['description']
-
-        if str(task.to_user_id) != str(request.form['to_user']):
-            if request.form['to_user'] == '0':
-                log_descr += "<dd>Снял назначение</dd>"
-            else:
-                log_descr += "<dd>Переназначил на: " + User.query.get(request.form['to_user']).fio + "</dd>"
-        task.to_user_id = request.form['to_user']
-
-        if str(task.urgency_id) != str(request.form['urgency']):
-            log_descr += "<dd>Изменил приоритет на: " + Urgency.query.get(request.form['urgency']).name + "</dd>"
-        task.urgency_id = request.form['urgency']
-
-
-
-
-        if str(task.date_finish) != str(datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')):
-            log_descr += "<dd>Изменил время на: " + str(
-                datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')) + "</dd>"
-        task.date_finish = datetime.strptime(request.form['date_finish'], '%Y-%m-%dT%H:%M')
-
-        if str(task.status_id) != str(request.form['status']):
-            log_descr += "<dd>Изменил статус на: " + Status.query.get(request.form['status']).name + "</dd>"
-        task.status_id = request.form['status']
-        if request.form['rating']:
-            if str(task.rating) != str(request.form['rating']):
-                log_descr += "<dd>Изменил оценку на: " + request.form['rating'] + "</dd>"
-            task.rating = request.form['rating']
-        if log_descr != str("<dt>" + current_user.fio + "</dt>"):
-            log_descr += " (" + datetime.now().strftime('%Y-%m-%d %H:%M') + ")"
-            user = current_user.id
-            log = Log(task_id=id, user_id=user, description=log_descr)
-            db.session.add(log)
-            db.session.commit()
-
-        try:
-            db.session.commit()
-            return redirect('/tasks')
-        except:
-            return "При редактировании задачи произошла ошибка"
-    else:
-
-        name = current_user.fio
-        directions = Direction.query.order_by(Direction.id).all()
-        types = Type.query.order_by(Type.id).all()
-        users = User.query.order_by(User.id).all()
-        urgency = Urgency.query.order_by(Urgency.id).all()
-        return render_template("task_add.html", name=name, directions=directions, types=types, users=users,
-                               urgency=urgency)
 
 
 @app.route('/taskadd', methods=['POST', 'GET'])

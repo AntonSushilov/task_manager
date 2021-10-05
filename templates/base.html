@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animate.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 
@@ -26,9 +27,8 @@
     <header class="p-3 bg-dark text-white">
         <div class="container">
             <div class="header-logo border-bottom">
-                <h1>Отдел аудита обеспечивающих процессов</h1>
-                <h3>Диспетчер задач</h3>
-                <h4>{{ current_user.fio }}</h4>
+                <h3>Отдел аудита обеспечивающих процессов</h3>
+                <h4>Диспетчер задач</h4>
             </div>
           <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
 
@@ -37,21 +37,20 @@
               <li><a href="/taskadd" class="nav-link px-2 text-white">Отправить задание</a></li>
               <li><a href="/storagescripts" class="nav-link px-2 text-white">Хранилище скриптов</a></li>
               <li><a href="/statistics" class="nav-link px-2 text-white">Статистика</a></li>
-              <li><a href="/test" class="nav-link px-2 text-white">Тест</a></li>
+<!--              <li><a href="/test" class="nav-link px-2 text-white">Тест</a></li>-->
             </ul>
-
 
             <div class="d-flex text-end">
 
                 {% if current_user.role.name == 'Admin' %}
-                    <a href="/register" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Добавить пользователя</font></a>
+                    <a href="/register" class="nav-link px-2 text-white">Добавить пользователя</a>
                 {% endif %}
                 {% if current_user.login %}
-                    <a href="/admin_panel" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Админка</font></a>
-                    <a href="/user/{{ current_user.login }}/{{ current_user.id}}" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Личный кабинет</font></a>
-                    <a href="/logout" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Выйти</font></a>
+                    <a href="/admin_panel" class="nav-link px-2 text-white">Админка</a>
+                    <a href="/user/{{ current_user.login }}/{{ current_user.id}}" class="nav-link px-2 text-white">{{ current_user.fio }}</a>
+                    <a href="/logout" class="nav-link px-2 text-white">Выйти</a>
                 {% else %}
-                    <a href="/login" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Авторизоваться</font></a>
+                    <a href="/login" class="nav-link px-2 text-white">Авторизоваться</a>
                 {% endif %}
             </div>
           </div>

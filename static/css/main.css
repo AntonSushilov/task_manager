@@ -36,6 +36,15 @@ tfoot {
     overflow-y: scroll;
     word-wrap: break-word;
 }
+.tasks-title{
+    max-height: 100px;
+    max-width: 170px;
+    overflow-y: scroll;
+    word-wrap: break-word;
+}
+.task-id{
+    width: 50px;
+}
 
 .tasks-discription tbody, td, tfoot, th, thead, tr {
     border-color: inherit;
@@ -43,11 +52,7 @@ tfoot {
     border-width: 1px;
 }
 
-.tasks-title{
-    max-height: 100px;
-    overflow-y: scroll;
-    word-wrap: break-word;
-}
+
 input[type="text"] {
      width: 100%;
      box-sizing: border-box;
