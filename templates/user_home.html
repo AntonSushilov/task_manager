@@ -53,7 +53,7 @@
                     select.append( '<option value="'+d+'">'+d+'</option>' )
                 } );
             } );
-
+$('#example tfoot tr').appendTo('#example .filters');
 
             // Apply the search
             this.api().columns().every( function () {
@@ -76,7 +76,10 @@
             buttons: [
                   'excel', 'pageLength'
             ],
+            fixedHeader: {
+                header: true,
 
+            },
             "language":{
     "processing": "Подождите...",
     "search": "Поиск:",
@@ -115,13 +118,13 @@
 
 
 	    } );
-$('#example tfoot tr').appendTo('#example .filters');
+
 	} );
 	</script>
 
 
     <table class="table table-striped table-hover table-bordered " id="example">
-        <thead>
+        <thead class="filters">
             <tr>
                 <th scope="col" class="">ID</th>
                 <th scope="col" class="">Инициатор</th>
@@ -136,9 +139,6 @@ $('#example tfoot tr').appendTo('#example .filters');
                 <th scope="col" class="">Статус</th>
                 <th scope="col" class="">Оценка</th>
             </tr>
-        </thead>
-        <thead class="filters">
-
         </thead>
         <tbody>
             {% for el in tasks %}
