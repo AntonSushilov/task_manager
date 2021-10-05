@@ -6,7 +6,7 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/boxicons.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 
@@ -23,50 +23,108 @@
 
 </head>
 <body>
-    <header class="p-3 bg-dark text-white">
-        <div class="container">
-            <div class="header-logo border-bottom">
-                <h1>Отдел аудита обеспечивающих процессов</h1>
-                <h3>Диспетчер задач</h3>
-                <h4>{{ current_user.fio }}</h4>
-            </div>
-          <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+<!--    <header class="p-3 bg-dark text-white">-->
+<!--        <div class="container">-->
+<!--            <div class="header-logo border-bottom">-->
+<!--                <h1>Отдел аудита обеспечивающих процессов</h1>-->
+<!--                <h3>Диспетчер задач</h3>-->
+<!--                <h4>{{ current_user.fio }}</h4>-->
+<!--            </div>-->
+<!--          <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">-->
 
-            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-              <li><a href="/" class="nav-link px-2 text-white">Главная</a></li>
-              <li><a href="/taskadd" class="nav-link px-2 text-white">Отправить задание</a></li>
-              <li><a href="/storagescripts" class="nav-link px-2 text-white">Хранилище скриптов</a></li>
-              <li><a href="/statistics" class="nav-link px-2 text-white">Статистика</a></li>
-              <li><a href="/test" class="nav-link px-2 text-white">Тест</a></li>
-            </ul>
+<!--            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">-->
+<!--              <li><a href="/" class="nav-link px-2 text-white">Главная</a></li>-->
+<!--              <li><a href="/taskadd" class="nav-link px-2 text-white">Отправить задание</a></li>-->
+<!--              <li><a href="/storagescripts" class="nav-link px-2 text-white">Хранилище скриптов</a></li>-->
+<!--              <li><a href="/statistics" class="nav-link px-2 text-white">Статистика</a></li>-->
+<!--              <li><a href="/test" class="nav-link px-2 text-white">Тест</a></li>-->
+<!--            </ul>-->
 
 
-            <div class="d-flex text-end">
+<!--            <div class="d-flex text-end">-->
 
-                {% if current_user.role.name == 'Admin' %}
-                    <a href="/register" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Добавить пользователя</font></a>
-                {% endif %}
-                {% if current_user.login %}
-                    <a href="/admin_panel" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Админка</font></a>
-                    <a href="/user/{{ current_user.login }}/{{ current_user.id}}" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Личный кабинет</font></a>
-                    <a href="/logout" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Выйти</font></a>
-                {% else %}
-                    <a href="/login" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Авторизоваться</font></a>
-                {% endif %}
-            </div>
-          </div>
-        </div>
-    </header>
+<!--                {% if current_user.role.name == 'Admin' %}-->
+<!--                    <a href="/register" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Добавить пользователя</font></a>-->
+<!--                {% endif %}-->
+<!--                {% if current_user.login %}-->
+<!--                    <a href="/admin_panel" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Админка</font></a>-->
+<!--                    <a href="/user/{{ current_user.login }}/{{ current_user.id}}" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Личный кабинет</font></a>-->
+<!--                    <a href="/logout" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Выйти</font></a>-->
+<!--                {% else %}-->
+<!--                    <a href="/login" class="nav-link px-2 text-white"><font style="vertical-align: inherit;">Авторизоваться</font></a>-->
+<!--                {% endif %}-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--    </header>-->
+<div class="sidebar">
+    <div class="logo-details">
+     <i class='bx bx-desktop icon' ></i>
+        <div class="logo_name">ОАОП</div>
+        <i class='bx bx-menu' id="btn" ></i>
+    </div>
+    <ul class="nav-list">
+      <li>
+        <a href="#">
+          <i class='bx bx-grid-alt'></i>
+          <span class="links_name">Задачи</span>
+        </a>
+         <span class="tooltip">Задачи</span>
+      </li>
+	  <li>
+       <a href="#">
+         <i class='bx bx-folder' ></i>
+         <span class="links_name">База скриптов</span>
+       </a>
+       <span class="tooltip">База скриптов</span>
+     </li>
 
-<div class="anim" style="opacity:0;transition:.8s;">
-    {% block body %}{% endblock %}
-</div>
+     <li>
+       <a href="#">
+         <i class='bx bx-pie-chart-alt-2' ></i>
+         <span class="links_name">Статистика</span>
+       </a>
+       <span class="tooltip">Статистика</span>
+     </li>
+
+
+     <li>
+       <a href="#">
+         <i class='bx bx-cog' ></i>
+         <span class="links_name">Настройки</span>
+       </a>
+       <span class="tooltip">Настройки</span>
+     </li>
+	   <li>
+       <a href="#">
+         <i class='bx bx-user' ></i>
+         <span class="links_name">Личный кабинет</span>
+       </a>
+       <span class="tooltip">Личный кабинет</span>
+     </li>
+     <li class="profile">
+         <div class="profile-details">
+           <i class='bx bx-user'></i>
+           <div class="name_job">
+             <div class="name">Prem Shahi</div>
+             <div class="job">Web designer</div>
+           </div>
+         </div>
+         <i class='bx bx-log-out' id="log_out" ></i>
+     </li>
+    </ul>
+  </div>
+<section class="home-section">
+    <div class="anim" style="opacity:0;transition:.8s;">
+        {% block body %}{% endblock %}
+    </div>
+</section>
 <script>
   $(document).ready(function() {
     $(".anim").css("opacity", "1");
   });
 </script>
-
+<script type="text/javascript" src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
 
     <footer class="border-top">
         <div class="container d-flex flex-wrap justify-content-between align-items-center py-3 my-4 ">
