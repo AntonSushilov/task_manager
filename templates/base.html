@@ -114,11 +114,11 @@
      </li>
     </ul>
   </div>
-<section class="home-section">
-    <div class="anim" style="opacity:0;transition:.8s;">
-        {% block body %}{% endblock %}
-    </div>
+
+<section class="anim" style="opacity:0;transition:.8s;">
+    {% block body %}{% endblock %}
 </section>
+
 <script>
   $(document).ready(function() {
     $(".anim").css("opacity", "1");
