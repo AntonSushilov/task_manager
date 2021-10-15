@@ -138,12 +138,13 @@
                 <tr class="tr-click" data-bs-toggle="modal"
                     data-bs-target="#exampleModal"
                     data-bs-id="{{ el.id }}"
-                    data-bs-fio="{{ el.user.fio }}"
+                    data-bs-user-fio="{{ el.user.fio }}"
+                    data-bs-user-id="{{ el.user.id }}"
                     data-bs-direction="{{ el.direction.id }}"
                     data-bs-type="{{ el.type.id }}"
                     data-bs-title="{{ el.title }}"
                     data-bs-description="{{ el.description }}"
-                    data-bs-to-user="{{ el.to_user.id }}"
+                    data-bs-to-user-id="{{ el.to_user.id }}"
                     data-bs-urgency="{{ el.urgency.id }}"
                     data-bs-start="{{ el.date_start.strftime('%Y-%m-%dT%H:%M') }}"
                     data-bs-finish="{{ el.date_finish.strftime('%Y-%m-%dT%H:%M') }}"
@@ -303,8 +304,10 @@
                                 {% endif %}
                              {% endfor %}
                         </div>
-            <input type="submit" class="btn btn-primary" name="action" value="Отправить изменения" onclick="return confirm('Вы уверены что хотите отправить изменения?');">
-          <input type="submit" class="btn btn-danger" name="action" value="Удалить" onclick="return confirm('Вы уверены что хотите удалить задачу?');">
+            <div class="buttons" id="buttons">
+
+            </div>
+
 
         </form>
 
@@ -318,70 +321,82 @@
 
 
 <script>
-
-
-
     var exampleModal = document.getElementById('exampleModal')
     exampleModal.addEventListener('show.bs.modal', function (event) {
-    // Button that triggered the modal
-    var button = event.relatedTarget;
-    // Extract info from data-bs-* attributes
-    var id = button.getAttribute('data-bs-id');
-    var user = button.getAttribute('data-bs-fio');
-    var direction = button.getAttribute('data-bs-direction');
-    var type = button.getAttribute('data-bs-type');
-    var title = button.getAttribute('data-bs-title');
-    var description = button.getAttribute('data-bs-description');
-    var to_user = button.getAttribute('data-bs-to-user');
-    var urgency = button.getAttribute('data-bs-urgency');
-    var start = button.getAttribute('data-bs-start');
-    var finish = button.getAttribute('data-bs-finish');
-    var status = button.getAttribute('data-bs-status');
-    var rating = button.getAttribute('data-bs-rating');
-    var logs = button.getAttribute('data-bs-logs');
-
-    // If necessary, you could initiate an AJAX request here
-    // and then do the updating in a callback.
-    //
-    // Update the modal's content.
-    var modalTitle = exampleModal.querySelector('.modal-title');
-    var modal_id = exampleModal.querySelector('.modal-body #task_id');
-    var modal_user = exampleModal.querySelector('.modal-body #user');
-    var modal_direction = exampleModal.querySelector('.modal-body #direction');
-    var modal_type = exampleModal.querySelector('.modal-body #type');
-    var modal_title = exampleModal.querySelector('.modal-body #title');
-    var modal_to_user = exampleModal.querySelector('.modal-body #to_user');
-    var modal_urgency = exampleModal.querySelector('.modal-body #urgency');
-    var modal_start = exampleModal.querySelector('.modal-body #date_start');
-    var modal_finish = exampleModal.querySelector('.modal-body #date_finish');
-    var modal_status = exampleModal.querySelector('.modal-body #status');
-    var modal_rating = exampleModal.querySelector('.modal-body #rating');
-    var modal_logs = exampleModal.querySelector('.modal-body #logs');
-
-    modalTitle.textContent = 'Редактирование задачи ';
-    modal_id.value = id;
-    modal_user.value = user;
-    modal_direction.value = direction;
-    modal_type.value = type;
-    modal_title.value = title;
-    CKEDITOR.instances['description'].setData(description);
-    if(to_user == ""){
-         modal_to_user.value = 0;
-    }
-    else{
-         modal_to_user.value= to_user;
-    }
-    modal_urgency.value = urgency;
-    modal_start.value = start;
-    modal_finish.value = finish;
-    modal_status.value = status;
-    modal_rating.value = rating;
-    modal_logs.innerHTML  = logs;
-    console.log(logs)
+        // Button that triggered the modal
+        var button = event.relatedTarget;
+        // Extract info from data-bs-* attributes
 
 
+        var id = button.getAttribute('data-bs-id');
+        var user = button.getAttribute('data-bs-user-fio');
+        var direction = button.getAttribute('data-bs-direction');
+        var type = button.getAttribute('data-bs-type');
+        var title = button.getAttribute('data-bs-title');
+        var description = button.getAttribute('data-bs-description');
+        var to_user_id = button.getAttribute('data-bs-to-user-id');
+        var urgency = button.getAttribute('data-bs-urgency');
+        var start = button.getAttribute('data-bs-start');
+        var finish = button.getAttribute('data-bs-finish');
+        var status = button.getAttribute('data-bs-status');
+        var rating = button.getAttribute('data-bs-rating');
+        var logs = button.getAttribute('data-bs-logs');
 
-})
+        // If necessary, you could initiate an AJAX request here
+        // and then do the updating in a callback.
+        //
+        // Update the modal's content.
+        var modalTitle = exampleModal.querySelector('.modal-title');
+        var modal_id = exampleModal.querySelector('.modal-body #task_id');
+        var modal_user = exampleModal.querySelector('.modal-body #user');
+        var modal_direction = exampleModal.querySelector('.modal-body #direction');
+        var modal_type = exampleModal.querySelector('.modal-body #type');
+        var modal_title = exampleModal.querySelector('.modal-body #title');
+        var modal_to_user = exampleModal.querySelector('.modal-body #to_user');
+        var modal_urgency = exampleModal.querySelector('.modal-body #urgency');
+        var modal_start = exampleModal.querySelector('.modal-body #date_start');
+        var modal_finish = exampleModal.querySelector('.modal-body #date_finish');
+        var modal_status = exampleModal.querySelector('.modal-body #status');
+        var modal_rating = exampleModal.querySelector('.modal-body #rating');
+        var modal_logs = exampleModal.querySelector('.modal-body #logs');
+
+        modalTitle.textContent = 'Редактирование задачи ';
+        modal_id.value = id;
+        modal_user.value = user;
+        modal_direction.value = direction;
+        modal_type.value = type;
+        modal_title.value = title;
+        CKEDITOR.instances['description'].setData(description);
+        if(to_user_id == ""){
+             modal_to_user.value = 0;
+        }
+        else{
+             modal_to_user.value= to_user_id;
+        }
+        modal_urgency.value = urgency;
+        modal_start.value = start;
+        modal_finish.value = finish;
+        modal_status.value = status;
+        modal_rating.value = rating;
+        modal_logs.innerHTML  = logs;
+
+        var current_user_role = "{{current_user.role.name}}";
+        var current_user_id = "{{current_user.id}}";
+        var user_id = button.getAttribute('data-bs-user-id');
+        console.log(current_user_id, user_id)
+        if( current_user_role == "Admin" || current_user_id == user_id ){
+            console.log("Ok")
+
+            $("#buttons").html('<input type="submit" class="btn btn-primary" name="action" value="Отправить изменения" onclick="return confirm(\'Вы уверены что хотите отправить изменения?\');">' +
+                '<input type="submit" class="btn btn-danger" name="action" value="Удалить" onclick="return confirm(\'Вы уверены что хотите удалить задачу?\');">');
+        }
+        else if( current_user_id == to_user_id || to_user_id == ""){
+            $("#buttons").html('<input type="submit" class="btn btn-primary" name="action" value="Отправить изменения" onclick="return confirm(\'Вы уверены что хотите отправить изменения?\');">');
+        }
+        else{
+            $("#buttons").html('');
+        }
+    })
 
 </script>
 

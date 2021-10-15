@@ -3,9 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="e52fa4f4-03ab-4b53-93b8-083c8d86bfbd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_fill.py" beforeDir="false" afterPath="$PROJECT_DIR$/db_fill.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/main.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/task_manager.db" beforeDir="false" afterPath="$PROJECT_DIR$/task_manager.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/task_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/task_detail.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/tasks.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/tasks.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/user_home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/user_home.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,6 +94,8 @@
       <workItem from="1633332534814" duration="2800000" />
       <workItem from="1633337495369" duration="15169000" />
       <workItem from="1633417911051" duration="10802000" />
+      <workItem from="1633519086935" duration="11124000" />
+      <workItem from="1634050308296" duration="3006000" />
     </task>
     <servers />
   </component>
@@ -111,6 +115,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/task_manager$app.coverage" NAME="app Coverage Results" MODIFIED="1633426334048" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/task_manager$app.coverage" NAME="app Coverage Results" MODIFIED="1634109818602" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

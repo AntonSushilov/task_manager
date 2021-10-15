@@ -12,11 +12,11 @@
         <form class="task-form" action="/tasks/{{ task.id }}/update_task" method="post">
             <div class="mb-3">
                 <label class="form-label">ID</label>
-                <input  class="form-control" type="text" id="task_id" name="task_id" placeholder="ID" disabled value="{{ task.id }}">
+                <input  class="form-control" type="text" id="task_id" name="task_id" placeholder="ID" readonly value="{{ task.id }}">
             </div>
             <div class="mb-3">
                 <label class="form-label">Инициатор</label>
-                <input  class="form-control" type="text" id="user" name="user" placeholder="Пользователь" disabled value="{{ task.user.fio }}">
+                <input  class="form-control" type="text" id="user" name="user" placeholder="Пользователь" readonly value="{{ task.user.fio }}">
             </div>
             <div class="mb-3">
                 <label class="form-label">Направление</label>
