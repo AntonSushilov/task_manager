@@ -453,19 +453,21 @@ def storagescripts_add():
 def upload(id):
     file = File.query.get_or_404(id)
     path = app.config['UPLOAD_FOLDER']
-    pathfile = file.path.split('\\')[-1]
+    pathfile = file.path
+    pathfile = os.path.split(pathfile)
     print(path, pathfile)
     path = os.path.join(path, 'scripts')
-    return send_from_directory(path, pathfile, as_attachment=True, attachment_filename=file.name)
+    return send_from_directory(path, pathfile[1], as_attachment=True, attachment_filename=file.name)
 
 @app.route('/storagescripts/show/<int:id>', methods=['GET', 'POST'])
 def show_file(id):
     file = File.query.get_or_404(id)
     path = app.config['UPLOAD_FOLDER']
-    pathfile = file.path.split('\\')[-1]
+    pathfile = file.path
+    pathfile = os.path.split(pathfile)
     print(path, pathfile)
     path = os.path.join(path, 'scripts')
-    return send_from_directory(path, pathfile)
+    return send_from_directory(path, pathfile[1])
 
 
 @app.route('/storagescripts/del/<int:id>', methods=['GET', 'POST'])
