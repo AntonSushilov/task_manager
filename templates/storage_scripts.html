@@ -41,7 +41,9 @@
                 <td style="width: 250px">
                     <a href="/storagescripts/{{el.id}}" class="link-success">Скачать</a>
                     <a href="/storagescripts/show/{{el.id}}" target="_blank" class="link-primary">Посмотреть</a>
+                    {% if el.id != 1 %}
                     <a href="/storagescripts/del/{{el.id}}" class="link-danger">Удалить</a>
+                    {% endif %}
                 </td>
             </tr>
 

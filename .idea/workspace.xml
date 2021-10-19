@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e52fa4f4-03ab-4b53-93b8-083c8d86bfbd" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/storage/scripts/readmeaaa98d2c-30b7-11ec-b19b-386893673102.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/task_manager.db" beforeDir="false" afterPath="$PROJECT_DIR$/task_manager.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/storage_scripts.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/storage_scripts.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,7 +92,7 @@
       <workItem from="1633519086935" duration="11124000" />
       <workItem from="1634050308296" duration="3647000" />
       <workItem from="1634546219618" duration="11175000" />
-      <workItem from="1634625614127" duration="7754000" />
+      <workItem from="1634625614127" duration="8053000" />
     </task>
     <servers />
   </component>
