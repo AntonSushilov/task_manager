@@ -17,7 +17,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'a really really really really long secret key'
 
 app.config['MAX_CONTENT_PATH'] = 1024 * 1024 * 16
-app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'storage')
+app.config['UPLOAD_FOLDER'] = os.path.join('storage')
 ALLOWED_EXTENSIONS = set(['txt'])
 
 db = SQLAlchemy(app)
