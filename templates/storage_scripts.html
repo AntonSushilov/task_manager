@@ -7,9 +7,122 @@
 {% block body %}
 <div class="container">
     <h1>Хранилище скриптов</h1>
-    <form action="/storagescripts" method="POST">
-        <a href="/storagescripts/open" class="btn btn-primary">Открыть папку</a>
-    </form>
+    {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="h6 flashes">
+    {% for message in messages %}
+      {{ message }}
+    {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        Загрузить файл скрипта
+    </button>
+
+
+
+
+    <table class="table table-striped table-hover table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Название</th>
+                <th scope="col">Описание</th>
+                <th scope="col">Действия</th>
+            </tr>
+        </thead>
+
+        {%for el in files%}
+        <form class="task-form" action="/tasks/edit" method="post">
+            <tr>
+                <th scope="row" style="width: 30px">{{ el.id }}</th>
+                <td style="width: 100px">{{ el.name }}</td>
+                <td>{{ el.description }}</td>
+                <td style="width: 250px">
+                    <a href="/storagescripts/{{el.name}}" class="link-success">Скачать</a>
+                    <a href="/storagescripts/show/{{el.name}}" target="_blank" class="link-primary">Посмотреть</a>
+                    <a href="/storagescripts/del/{{el.id}}" class="link-danger">Удалить</a>
+                </td>
+            </tr>
+
+            {% endfor %}
+    </table>
+
+
 </div>
 
+
+
+
+
+
+<!-- Button trigger modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+           <form action="/storagescripts/add" method="POST" enctype="multipart/form-data">
+               <div class="mb-3">
+                    <label class="form-label">Название скрипта</label>
+                    <input  class="form-control" type="text" id="name" name="name" placeholder="Название">
+                </div>
+               <div class="mb-3">
+                    <label class="form-label">Описание скрипта</label>
+                   <textarea  class="form-control" rows="3" cols="60" name="description" id="description"  placeholder="Описание"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="file" class="form-label">Выберите файл</label>
+                    <input class="form-control" type="file" name="file" id="file" accept=".txt">
+                </div>
+
+
+                <div class="buttons" id="buttons">
+                    <input type="submit" class="btn btn-primary" name="action" value="Отправить" onclick="return confirm('Вы уверены что хотите отправить файл?');">
+                </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+<script>
+    var exampleModal = document.getElementById('exampleModal')
+    exampleModal.addEventListener('show.bs.modal', function (event) {
+        // Button that triggered the modal
+        var button = event.relatedTarget;
+        // Extract info from data-bs-* attributes
+
+
+        // If necessary, you could initiate an AJAX request here
+        // and then do the updating in a callback.
+        //
+        // Update the modal's content.
+        var modalTitle = exampleModal.querySelector('.modal-title');
+
+
+        modalTitle.textContent = 'Загрузка файла ';
+
+    })
+
+</script>
 {% endblock %}

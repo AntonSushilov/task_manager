@@ -7,14 +7,18 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_ckeditor import CKEditor
-
-
+from werkzeug.utils import secure_filename
+from flask import send_from_directory
 
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///task_manager.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'a really really really really long secret key'
+
+app.config['MAX_CONTENT_PATH'] = 1024 * 1024 * 16
+app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'storage')
+ALLOWED_EXTENSIONS = set(['txt'])
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -35,6 +39,15 @@ class Anonymous(AnonymousUserMixin):
 
 login_manager.anonymous_user = Anonymous
 
+class File(db.Model):
+    __tablename__ = 'file'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    path = db.Column(db.String(20), nullable=False)
+
+    def __repr__(self):
+        return '<File %r>' % self.name
 
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
@@ -220,7 +233,6 @@ def index():
     tasks = Task.query.order_by(Task.date_start.desc()).all()
     directions = Direction.query.order_by(Direction.id).all()
     logs = db.session.query(Log.task_id, Log.description).all()
-    print(logs)
     name = current_user.fio
     directions = Direction.query.order_by(Direction.id).all()
     types = Type.query.order_by(Type.id).all()
@@ -356,21 +368,106 @@ def taskadd():
 @app.route('/storagescripts', methods=['POST', 'GET'])
 @login_required
 def storagescripts():
-    return render_template("storage_scripts.html")
+    files = File.query.all()
 
 
-@app.route('/storagescripts/open', methods=['POST', 'GET'])
+    return render_template("storage_scripts.html", files=files)
+
+
+def translit_text(st):
+    dic = {'Ь': '`', 'ь': '`', 'Ъ': '`', 'ъ': '`', 'А': 'A', 'а': 'a', 'Б': 'B', 'б': 'b', 'В': 'V', 'в': 'v',
+           'Г': 'G', 'г': 'g', 'Д': 'D', 'д': 'd', 'Е': 'E', 'е': 'e', 'Ё': 'E', 'ё': 'e', 'Ж': 'Zh', 'ж': 'zh',
+           'З': 'Z', 'з': 'z', 'И': 'I', 'и': 'i', 'Й': 'I', 'й': 'i', 'К': 'K', 'к': 'k', 'Л': 'L', 'л': 'l',
+           'М': 'M', 'м': 'm', 'Н': 'N', 'н': 'n', 'О': 'O', 'о': 'o', 'П': 'P', 'п': 'p', 'Р': 'R', 'р': 'r',
+           'С': 'S', 'с': 's', 'Т': 'T', 'т': 't', 'У': 'U', 'у': 'u', 'Ф': 'F', 'ф': 'f', 'Х': 'Kh', 'х': 'kh',
+           'Ц': 'Tc', 'ц': 'tc', 'Ч': 'Ch', 'ч': 'ch', 'Ш': 'Sh', 'ш': 'sh', 'Щ': 'Shch', 'щ': 'shch', 'Ы': 'Y',
+           'ы': 'y', 'Э': 'E', 'э': 'e', 'Ю': 'Iu', 'ю': 'iu', 'Я': 'Ia', 'я': 'ia'}
+
+    alphabet = ['Ь', 'ь', 'Ъ', 'ъ', 'А', 'а', 'Б', 'б', 'В', 'в', 'Г', 'г', 'Д', 'д', 'Е', 'е', 'Ё', 'ё',
+                'Ж', 'ж', 'З', 'з', 'И', 'и', 'Й', 'й', 'К', 'к', 'Л', 'л', 'М', 'м', 'Н', 'н', 'О', 'о',
+                'П', 'п', 'Р', 'р', 'С', 'с', 'Т', 'т', 'У', 'у', 'Ф', 'ф', 'Х', 'х', 'Ц', 'ц', 'Ч', 'ч',
+                'Ш', 'ш', 'Щ', 'щ', 'Ы', 'ы', 'Э', 'э', 'Ю', 'ю', 'Я', 'я']
+
+
+    st = str(st)
+    result = str()
+
+    len_st = len(st)
+    for i in range(0, len_st):
+        if st[i] in alphabet:
+            simb = dic[st[i]]
+        else:
+            simb = st[i]
+        result = result + simb
+
+    return result
+
+
+@app.route('/storagescripts/add', methods=['POST', 'GET'])
 @login_required
-def storagescripts_open():
+def storagescripts_add():
+    if request.method == "POST":
+        print(request.files)
+        file = request.files['file']
+        if file.filename.split('.')[-1] != 'txt':
+            flash('Выберите файл с расширением .txt')
+        else:
+            description = request.form['description']
+            name = request.form['name']
+            if file.filename:
+                if name:
+                    filename = name + '.txt'
+                else:
+                    filename = translit_text(file.filename)
+                filename = secure_filename(filename)
+                path = app.config['UPLOAD_FOLDER']
+                path_file = os.path.join('scripts', filename)
+                path = os.path.join(path, path_file)
+                print(path_file)
+                file_db = File(name=filename, description=description, path=path_file)
+                try:
+                    db.session.add(file_db)
+                    db.session.commit()
+                    file.save(path)
+                    return redirect('/storagescripts')
+                except:
+                    return "При добавлении файла произошла ошибка"
+
+            else:
+                flash('Вы не выбрали файл')
+    return redirect('/storagescripts')
+
+
+
+@app.route('/storagescripts/<filename>', methods=['GET', 'POST'])
+def upload(filename):
+    path = app.config['UPLOAD_FOLDER']
+    path = os.path.join(path, 'scripts')
+    print(path, filename)
+    return send_from_directory(path, filename, as_attachment=True)
+
+@app.route('/storagescripts/show/<filename>', methods=['GET', 'POST'])
+def show_file(filename):
+    path = app.config['UPLOAD_FOLDER']
+    path = os.path.join(path, 'scripts')
+    print(path, filename)
+    return send_from_directory(path, filename)
+
+
+@app.route('/storagescripts/del/<int:id>', methods=['GET', 'POST'])
+def del_file(id):
+    file = File.query.get_or_404(id)
+    path = app.config['UPLOAD_FOLDER']
+    path = os.path.join(path, 'scripts', file.name)
+    print(path )
     try:
-        path = "C:\\Users"
-        path = os.path.realpath(path)
-        os.startfile(path)
+        db.session.delete(file)
+        db.session.commit()
+        os.remove(path)
         return redirect("/storagescripts")
     except:
-        print("Файл не найден")
-
-    return render_template("storage_scripts.html")
+        return "При удалении произошла ошибка"
+    return redirect("/storagescripts")
 
 
 @app.route('/statistics')
@@ -553,7 +650,7 @@ def admin_add_type():
                     db.session.commit()
                     return redirect("/admin_panel")
                 except:
-                    return "При добавлении задачи произошла ошибка"
+                    return "При добавлении типа произошла ошибка"
         return redirect("/admin_panel")
     else:
         return redirect("/tasks")
