@@ -4,6 +4,9 @@
     <list default="true" id="e52fa4f4-03ab-4b53-93b8-083c8d86bfbd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage/scripts/123.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/task_manager.db" beforeDir="false" afterPath="$PROJECT_DIR$/task_manager.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/storage_scripts.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/storage_scripts.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,7 +96,7 @@
       <workItem from="1633519086935" duration="11124000" />
       <workItem from="1634050308296" duration="3647000" />
       <workItem from="1634546219618" duration="11175000" />
-      <workItem from="1634625614127" duration="1484000" />
+      <workItem from="1634625614127" duration="5297000" />
     </task>
     <servers />
   </component>
@@ -113,6 +116,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/task_manager$app.coverage" NAME="app Coverage Results" MODIFIED="1634625639363" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/task_manager$app.coverage" NAME="app Coverage Results" MODIFIED="1634631127439" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

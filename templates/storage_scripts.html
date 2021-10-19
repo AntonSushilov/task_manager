@@ -34,14 +34,13 @@
         </thead>
 
         {%for el in files%}
-        <form class="task-form" action="/storagescripts/" method="post">
             <tr>
                 <th scope="row" style="width: 30px">{{ el.id }}</th>
                 <td style="width: 100px">{{ el.name }}</td>
                 <td>{{ el.description }}</td>
                 <td style="width: 250px">
-                    <a href="/storagescripts/{{el.name}}" class="link-success">Скачать</a>
-                    <a href="/storagescripts/show/{{el.name}}" target="_blank" class="link-primary">Посмотреть</a>
+                    <a href="/storagescripts/{{el.id}}" class="link-success">Скачать</a>
+                    <a href="/storagescripts/show/{{el.id}}" target="_blank" class="link-primary">Посмотреть</a>
                     <a href="/storagescripts/del/{{el.id}}" class="link-danger">Удалить</a>
                 </td>
             </tr>

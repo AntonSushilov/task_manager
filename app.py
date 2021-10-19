@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_ckeditor import CKEditor
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
-
+import uuid
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///task_manager.db'
@@ -407,24 +407,34 @@ def translit_text(st):
 @login_required
 def storagescripts_add():
     if request.method == "POST":
-        print(request.files)
         file = request.files['file']
-        if file.filename.split('.')[-1] != 'txt':
-            flash('Выберите файл с расширением .txt')
-        else:
-            description = request.form['description']
-            name = request.form['name']
-            if file.filename:
+
+        if file.filename:
+            filenamearr = file.filename.split('.')
+            filename = filenamearr[0]
+            fileext = filenamearr[-1]
+
+            if fileext != 'txt':
+                flash('Выберите файл с расширением .txt')
+            else:
+
+                description = request.form['description']
+                name = request.form['name']
+                addname = str(uuid.uuid1())
                 if name:
-                    filename = name + '.txt'
+                    filename_bd = name
+                    filename_storage = name + addname + '.txt'
                 else:
-                    filename = translit_text(file.filename)
-                filename = secure_filename(filename)
+                    filename_bd = translit_text(filename)
+                    filename_storage = filename_bd + addname + '.txt'
+                filename_bd = secure_filename(filename_bd) + '.txt'
+                filename_storage = secure_filename(filename_storage)
+
                 path = app.config['UPLOAD_FOLDER']
-                path_file = os.path.join('scripts', filename)
+                path_file = os.path.join('scripts', filename_storage)
                 path = os.path.join(path, path_file)
                 print(path_file)
-                file_db = File(name=filename, description=description, path=path_file)
+                file_db = File(name=filename_bd, description=description, path=path_file)
                 try:
                     db.session.add(file_db)
                     db.session.commit()
@@ -433,33 +443,37 @@ def storagescripts_add():
                 except:
                     return "При добавлении файла произошла ошибка"
 
-            else:
-                flash('Вы не выбрали файл')
+        else:
+            flash('Вы не выбрали файл')
     return redirect('/storagescripts')
 
 
 
-@app.route('/storagescripts/<filename>', methods=['GET', 'POST'])
-def upload(filename):
+@app.route('/storagescripts/<int:id>', methods=['GET', 'POST'])
+def upload(id):
+    file = File.query.get_or_404(id)
     path = app.config['UPLOAD_FOLDER']
+    pathfile = file.path.split('\\')[-1]
+    print(path, pathfile)
     path = os.path.join(path, 'scripts')
-    print(path, filename)
-    return send_from_directory(path, filename, as_attachment=True)
+    return send_from_directory(path, pathfile, as_attachment=True, attachment_filename=file.name)
 
-@app.route('/storagescripts/show/<filename>', methods=['GET', 'POST'])
-def show_file(filename):
+@app.route('/storagescripts/show/<int:id>', methods=['GET', 'POST'])
+def show_file(id):
+    file = File.query.get_or_404(id)
     path = app.config['UPLOAD_FOLDER']
+    pathfile = file.path.split('\\')[-1]
+    print(path, pathfile)
     path = os.path.join(path, 'scripts')
-    print(path, filename)
-    return send_from_directory(path, filename)
+    return send_from_directory(path, pathfile)
 
 
 @app.route('/storagescripts/del/<int:id>', methods=['GET', 'POST'])
 def del_file(id):
     file = File.query.get_or_404(id)
     path = app.config['UPLOAD_FOLDER']
-    path = os.path.join(path, 'scripts', file.name)
-    print(path )
+    path = os.path.join(path, file.path)
+    print(path)
     try:
         db.session.delete(file)
         db.session.commit()
