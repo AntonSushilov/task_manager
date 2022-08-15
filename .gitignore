@@ -1,0 +1,7 @@
+*.DS_Store
+._*
+.ipynb_checkpoints
+geckodriver.log
+/input_data
+/output_data
+__pyache__
