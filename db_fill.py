@@ -10,7 +10,7 @@ hash_pwd2 = generate_password_hash('user')
 hash_pwd2 = generate_password_hash('user')
 u1 = User(login='admin', fio='Admin A.A.', password=hash_pwd, role_id='2')
 u2 = User(login='novozhilov_s_a', fio='Новожилов С.А.', password=hash_pwd2)
-u4 = User(login='eckert_n_a', fio='Экерт Н.А.', password=hash_pwd2)
+u4 = User(login='ekert_n_a', fio='Экерт Н.А.', password=hash_pwd2)
 u5 = User(login='akhmaev_r_f', fio='Ахмаев Р.Ф.', password=hash_pwd2)
 u6 = User(login='sushilov_a_a', fio='Сушилов А.А.', password=hash_pwd2)
 
